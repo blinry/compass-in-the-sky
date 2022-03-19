@@ -126,10 +126,24 @@
             <line
                 x1="0"
                 y1="0"
-                x2={0.4 * Math.cos(sunAzimuth - Math.PI)}
-                y2={0.4 * Math.sin(sunAzimuth - Math.PI)}
+                x2={0.3 * Math.cos(sunAzimuth - Math.PI)}
+                y2={0.3 * Math.sin(sunAzimuth - Math.PI)}
                 stroke="black"
                 stroke-width="0.05"
+            />
+            <circle
+                cx={0.3 * Math.cos(sunAzimuth - Math.PI)}
+                cy={0.3 * Math.sin(sunAzimuth - Math.PI)}
+                r="0.025"
+                fill="black"
+            />
+            <circle
+                cx="0"
+                cy="0"
+                r="0.025"
+                fill="grey"
+                stroke="black"
+                stroke-width="0.005"
             />
         </svg>
     </div>
