@@ -12,7 +12,6 @@
     $: {
         date.setHours(hour, 0, 0)
         date.setMonth(month)
-        console.log(date)
         pos = SunCalc.getPosition(date, 52, 10)
     }
 
@@ -24,6 +23,10 @@
 
     function handleMousemove(event) {
         if (mousedown) {
+            if (event.touches) {
+                event.clientX = event.touches[0].pageX
+                event.clientY = event.touches[0].pageY
+            }
             let loc = cursorPoint(event)
             offsetAzimuth = Math.atan2(loc.y, loc.x)
         }
@@ -64,11 +67,12 @@
     Hour: <input type="number" bind:value={hour} min="0" max="24" />
     Quiz mode: <input type="checkbox" bind:checked={quiz} />
     <div
-        on:mousemove={handleMousemove}
         on:mousedown={handleMousedown}
-        on:touchstart={handleMousemove}
-        on:touchend={handleMousedown}
         on:mouseup={handleMouseup}
+        on:mousemove={handleMousemove}
+        on:touchstart={handleMousedown}
+        on:touchend={handleMouseup}
+        on:touchmove={handleMousemove}
     >
         <svg width="400" height="400" viewBox="-0.5 -0.5 1 1">
             <circle
@@ -87,14 +91,6 @@
                 stroke="black"
                 stroke-width="0.005"
             />
-            <line
-                x1="0"
-                y1="0"
-                x2={0.4 * Math.cos(sunAzimuth - Math.PI)}
-                y2={0.4 * Math.sin(sunAzimuth - Math.PI)}
-                stroke="black"
-                stroke-width="0.05"
-            />
             <circle
                 cx={0.4 * Math.cos(northAzimuth)}
                 cy={0.4 * Math.sin(northAzimuth)}
@@ -111,9 +107,24 @@
                     y={0.4 * Math.sin(northAzimuth) + 0.03}>N</tspan
                 >
             </text>
+            <line
+                x1="0"
+                y1="0"
+                x2={0.4 * Math.cos(sunAzimuth - Math.PI)}
+                y2={0.4 * Math.sin(sunAzimuth - Math.PI)}
+                stroke="black"
+                stroke-width="0.05"
+            />
         </svg>
     </div>
 </main>
 
 <style>
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        opacity: 1;
+    }
+    * {
+        user-select: none;
+    }
 </style>
