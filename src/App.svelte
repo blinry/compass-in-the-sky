@@ -2,16 +2,17 @@
     import {onMount} from "svelte"
     import SunCalc from "suncalc"
 
-    let date = new Date()
-    let hour = date.getHours()
-    let month = date.getMonth()
+    let hour, month
+    let showNorth = true
+    reset()
 
-    let pos,
-        quiz = false
+    let pos
+    let quizButtonText = "Quiz me!"
 
     $: {
+        let date = new Date()
         date.setHours(hour, 0, 0)
-        date.setMonth(month)
+        date.setMonth(month - 1)
         pos = SunCalc.getPosition(date, 52, 10)
     }
 
@@ -38,11 +39,24 @@
     }
     function handleMouseup(event) {
         mousedown = false
-        if (quiz) {
+    }
+    function startQuiz() {
+        if (showNorth) {
             offsetAzimuth = Math.random() * 2 * Math.PI
             hour = Math.floor(Math.random() * (21 - 6) + 6)
             month = Math.floor(Math.random() * 12)
+            showNorth = false
+            quizButtonText = "Reveal"
+        } else {
+            showNorth = true
+            quizButtonText = "Quiz me!"
         }
+    }
+    function reset() {
+        let date = new Date()
+        hour = date.getHours()
+        month = date.getMonth() + 1
+        showNorth = true
     }
 
     var pt, svg
@@ -65,7 +79,7 @@
 <main>
     Month: <input type="number" bind:value={month} min="0" max="11" />
     Hour: <input type="number" bind:value={hour} min="0" max="24" />
-    Quiz mode: <input type="checkbox" bind:checked={quiz} />
+    <button on:click={reset}>Reset</button>
     <div
         on:mousedown={handleMousedown}
         on:mouseup={handleMouseup}
@@ -91,22 +105,24 @@
                 stroke="black"
                 stroke-width="0.005"
             />
-            <circle
-                cx={0.4 * Math.cos(northAzimuth)}
-                cy={0.4 * Math.sin(northAzimuth)}
-                r="0.07"
-                fill="white"
-            />
-            <text
-                text-anchor="middle"
-                alignment-baseline="central"
-                font-size="0.1"
-            >
-                <tspan
-                    x={0.4 * Math.cos(northAzimuth)}
-                    y={0.4 * Math.sin(northAzimuth) + 0.03}>N</tspan
+            {#if showNorth}
+                <circle
+                    cx={0.4 * Math.cos(northAzimuth)}
+                    cy={0.4 * Math.sin(northAzimuth)}
+                    r="0.07"
+                    fill="white"
+                />
+                <text
+                    text-anchor="middle"
+                    alignment-baseline="central"
+                    font-size="0.1"
                 >
-            </text>
+                    <tspan
+                        x={0.4 * Math.cos(northAzimuth)}
+                        y={0.4 * Math.sin(northAzimuth) + 0.03}>N</tspan
+                    >
+                </text>
+            {/if}
             <line
                 x1="0"
                 y1="0"
@@ -117,12 +133,16 @@
             />
         </svg>
     </div>
+    <button on:click={startQuiz}>{quizButtonText}</button>
 </main>
 
 <style>
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button {
         opacity: 1;
+    }
+    svg {
+        touch-action: none;
     }
     * {
         user-select: none;
