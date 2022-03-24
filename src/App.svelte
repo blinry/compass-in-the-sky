@@ -201,7 +201,7 @@
     <button on:click={startQuiz}>{quizButtonText}</button>
     <br />
     <p>
-        The numbers indicate where north it at that hour, relative to the
+        The numbers indicate where north is at that hour, relative to the
         shadow.
     </p>
     <p />
