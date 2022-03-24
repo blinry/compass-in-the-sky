@@ -41,7 +41,7 @@
         for (let hour2 = sunriseHour; hour2 <= sunsetHour; hour2 += 1) {
             markers.push({
                 label: "" + hour2,
-                azimuth: -calcAzimuth(month, hour2) + calcAzimuth(month, hour),
+                azimuth: calcAzimuth(month, hour2),
                 size: 0.4,
                 radius: 0.8,
             })
@@ -199,12 +199,6 @@
         </svg>
     </div>
     <button on:click={startQuiz}>{quizButtonText}</button>
-    <br />
-    <p>
-        The numbers indicate where north is at that hour, relative to the
-        shadow.
-    </p>
-    <p />
 </main>
 
 <style>
