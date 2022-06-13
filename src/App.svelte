@@ -1,10 +1,23 @@
 <script>
     import {onMount} from "svelte"
     import SunCalc from "suncalc"
+    import findTZ from "tz-lookup"
 
     let hour, month
     let showNorth = true
     reset()
+
+    let lat = 0
+    let lng = 0
+    let timezoneString = "UTC"
+
+    navigator.geolocation.getCurrentPosition(function (position) {
+        lat = position.coords.latitude
+        lng = position.coords.longitude
+        console.log(lat, lng)
+    })
+
+    $: timezoneString = findTZ(lat, lng)
 
     let pos
     let quizButtonText = "Quiz me!"
@@ -12,9 +25,11 @@
     let date
     $: {
         date = new Date()
-        date.setHours(hour, 0, 0)
+        date.toLocaleString("en-US", {timeZone: timezoneString})
+        console.log(date)
+        date.setHours(Math.floor(hour), (hour % 1) * 60, 0)
         date.setMonth(month - 1)
-        pos = SunCalc.getPosition(date, 52, 10)
+        pos = SunCalc.getPosition(date, lat, lng)
     }
 
     let offsetAzimuth = 0
@@ -34,7 +49,7 @@
             azimuth: (Math.PI * 3) / 2,
         })
 
-        let times = SunCalc.getTimes(date, 52, 10)
+        let times = SunCalc.getTimes(date, lat, lng)
         let sunriseHour = times.sunrise.getHours()
         let sunsetHour = times.sunset.getHours()
 
@@ -51,10 +66,11 @@
     }
 
     function calcAzimuth(month, hour) {
-        let date = new Date()
-        date.setHours(hour, 0, 0)
-        date.setMonth(month - 1)
-        pos = SunCalc.getPosition(date, 52, 10)
+        //console.log(date)
+        let date2 = new Date(date)
+        date2.setHours(Math.floor(hour), (hour % 1) * 60, 0)
+        date2.setMonth(month - 1)
+        pos = SunCalc.getPosition(date2, lat, lng)
         return pos.azimuth
     }
 
@@ -114,7 +130,17 @@
 
 <main>
     Month: <input type="number" bind:value={month} min="1" max="12" />
-    Hour: <input type="number" bind:value={hour} min="0" max="24" />
+    <br />
+    <input type="range" bind:value={hour} min="0" max="24" step="0.01666" />
+    Hour: {hour}
+    <br />
+    <input type="range" bind:value={lat} min="-90" max="90" />
+    Lat: {String(lat.toFixed(2)).padStart(2, "0")}
+    <br />
+    <input type="range" bind:value={lng} min="-180" max="180" />
+    Lon: {String(lng.toFixed(2)).padStart(2, "0")}
+    <br />
+    {timezoneString}<br />
     <button on:click={reset}>Reset</button>
     <div
         on:mousedown={handleMousedown}

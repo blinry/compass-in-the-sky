@@ -18,7 +18,9 @@
     "svelte": "^3.0.0"
   },
   "dependencies": {
+    "geo-tz": "^7.0.1",
     "sirv-cli": "^2.0.0",
-    "suncalc": "^1.9.0"
+    "suncalc": "^1.9.0",
+    "tz-lookup": "^6.1.25"
   }
 }
