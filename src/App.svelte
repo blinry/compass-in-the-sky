@@ -3,8 +3,11 @@
     import SunCalc from "suncalc"
     import findTZ from "tz-lookup"
 
+    let image
+    let solution
+
     let hour, month
-    let showNorth = true
+    let showHints = true
     reset()
 
     let lat = 0
@@ -14,7 +17,6 @@
     navigator.geolocation.getCurrentPosition(function (position) {
         lat = position.coords.latitude
         lng = position.coords.longitude
-        console.log(lat, lng)
     })
 
     $: timezoneString = findTZ(lat, lng)
@@ -26,7 +28,6 @@
     $: {
         date = new Date()
         date.toLocaleString("en-US", {timeZone: timezoneString})
-        console.log(date)
         date.setHours(Math.floor(hour), (hour % 1) * 60, 0)
         date.setMonth(month - 1)
         pos = SunCalc.getPosition(date, lat, lng)
@@ -66,12 +67,11 @@
     }
 
     function calcAzimuth(month, hour) {
-        //console.log(date)
         let date2 = new Date(date)
         date2.setHours(Math.floor(hour), (hour % 1) * 60, 0)
         date2.setMonth(month - 1)
         pos = SunCalc.getPosition(date2, lat, lng)
-        return pos.azimuth
+        return pos.azimuth + Math.PI
     }
 
     function handleMousemove(event) {
@@ -81,7 +81,7 @@
                 event.clientY = event.touches[0].pageY
             }
             let loc = cursorPoint(event)
-            offsetAzimuth = Math.atan2(loc.y, loc.x) - sunAzimuth + Math.PI
+            offsetAzimuth = Math.atan2(loc.y, loc.x)
         }
     }
 
@@ -93,22 +93,49 @@
         mousedown = false
     }
     function startQuiz() {
-        if (showNorth) {
+        if (showHints) {
+            /*
             offsetAzimuth = Math.random() * 2 * Math.PI
             hour = Math.floor(Math.random() * (21 - 6) + 6)
             month = Math.floor(Math.random() * 12) + 1
-            showNorth = false
-            quizButtonText = "Reveal"
+            */
+            let size = 0.1
+            let lat1 = Number(lat - size).toFixed(3)
+            let lng1 = Number(lng - size).toFixed(3)
+            let lat2 = Number(lat + size).toFixed(3)
+            let lng2 = Number(lng + size).toFixed(3)
+            image = undefined
+            showHints = false
+            fetch(
+                `https://graph.mapillary.com/images?access_token=MLY|7569500839758282|7b3b3eced40c887cc2867488d6a50220&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url&bbox=${lng1},${lat1},${lng2},${lat2}&limit=1`,
+            )
+                .then((response) => response.json())
+                .then((json) => {
+                    let entry = json.data[0]
+
+                    let timestamp = parseInt(entry["captured_at"])
+                    let date = new Date(timestamp)
+                    month = date.getMonth() + 1
+                    hour = date.getHours()
+                    lat = entry["computed_geometry"]["coordinates"][1]
+                    lng = entry["computed_geometry"]["coordinates"][0]
+
+                    quizButtonText = "Reveal"
+
+                    image = entry["thumb_1024_url"]
+                    solution = entry["computed_compass_angle"]
+                })
         } else {
-            showNorth = true
+            showHints = true
             quizButtonText = "Quiz me!"
+            offsetAzimuth = (-solution / 360.0) * 2 * Math.PI - Math.PI / 2
         }
     }
     function reset() {
         let date = new Date()
         hour = date.getHours()
         month = date.getMonth() + 1
-        showNorth = true
+        showHints = true
     }
 
     var pt, svg
@@ -129,6 +156,9 @@
 </script>
 
 <main>
+    {#if image}
+        <img src={image} /><br />
+    {/if}
     Month: <input type="number" bind:value={month} min="1" max="12" />
     <br />
     <input type="range" bind:value={hour} min="0" max="24" step="0.01666" />
@@ -159,30 +189,30 @@
                 stroke="black"
                 stroke-width="0.005"
             />
-            {#if showNorth}
-                {#each markers as marker}
-                    <circle
-                        cx={0.4 *
-                            marker.radius *
-                            Math.cos(marker.azimuth + offsetAzimuth)}
-                        cy={0.4 *
-                            marker.radius *
-                            Math.sin(marker.azimuth + offsetAzimuth)}
-                        r="0.07"
-                        fill="white"
-                    />
-                {/each}
+            {#each markers as marker}
+                <circle
+                    cx={0.4 *
+                        marker.radius *
+                        Math.cos(marker.azimuth + offsetAzimuth)}
+                    cy={0.4 *
+                        marker.radius *
+                        Math.sin(marker.azimuth + offsetAzimuth)}
+                    r="0.07"
+                    fill="white"
+                />
+            {/each}
+            {#if showHints}
+                <circle
+                    cx={0.3 * Math.cos(sunAzimuth + offsetAzimuth)}
+                    cy={0.3 * Math.sin(sunAzimuth + offsetAzimuth)}
+                    r="0.05"
+                    fill="yellow"
+                    stroke="black"
+                    stroke-width="0.005"
+                />
             {/if}
-            <circle
-                cx={0.3 * Math.cos(sunAzimuth + offsetAzimuth)}
-                cy={0.3 * Math.sin(sunAzimuth + offsetAzimuth)}
-                r="0.05"
-                fill="yellow"
-                stroke="black"
-                stroke-width="0.005"
-            />
-            {#if showNorth}
-                {#each markers as marker}
+            {#each markers as marker}
+                {#if marker.radius === 1 || showHints}
                     <text
                         text-anchor="middle"
                         alignment-baseline="central"
@@ -198,30 +228,32 @@
                                 0.03}>{marker.label}</tspan
                         >
                     </text>
-                {/each}
+                {/if}
+            {/each}
+            {#if showHints}
+                <line
+                    x1="0"
+                    y1="0"
+                    x2={0.3 * Math.cos(sunAzimuth - Math.PI + offsetAzimuth)}
+                    y2={0.3 * Math.sin(sunAzimuth - Math.PI + offsetAzimuth)}
+                    stroke="black"
+                    stroke-width="0.05"
+                />
+                <circle
+                    cx={0.3 * Math.cos(sunAzimuth - Math.PI + offsetAzimuth)}
+                    cy={0.3 * Math.sin(sunAzimuth - Math.PI + offsetAzimuth)}
+                    r="0.025"
+                    fill="black"
+                />
+                <circle
+                    cx="0"
+                    cy="0"
+                    r="0.025"
+                    fill="grey"
+                    stroke="black"
+                    stroke-width="0.005"
+                />
             {/if}
-            <line
-                x1="0"
-                y1="0"
-                x2={0.3 * Math.cos(sunAzimuth - Math.PI + offsetAzimuth)}
-                y2={0.3 * Math.sin(sunAzimuth - Math.PI + offsetAzimuth)}
-                stroke="black"
-                stroke-width="0.05"
-            />
-            <circle
-                cx={0.3 * Math.cos(sunAzimuth - Math.PI + offsetAzimuth)}
-                cy={0.3 * Math.sin(sunAzimuth - Math.PI + offsetAzimuth)}
-                r="0.025"
-                fill="black"
-            />
-            <circle
-                cx="0"
-                cy="0"
-                r="0.025"
-                fill="grey"
-                stroke="black"
-                stroke-width="0.005"
-            />
         </svg>
     </div>
     <button on:click={startQuiz}>{quizButtonText}</button>
