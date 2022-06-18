@@ -1,13 +1,29 @@
 <script>
-    import {onMount} from "svelte"
+    import Compass from "./Compass.svelte"
     import SunCalc from "suncalc"
     import findTZ from "tz-lookup"
 
+    const monthNames = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    ]
+
     let image
-    let solution
+    let yourSunAngle = 0,
+        yourNorthAngle = 0
 
     let hour, month
-    let showHints = true
+    let quizInProgress = false
     reset()
 
     let lat = 0
@@ -33,8 +49,11 @@
         pos = SunCalc.getPosition(date, lat, lng)
     }
 
-    let offsetAzimuth = 0
-    $: sunAzimuth = Math.PI + pos.azimuth
+    let northAngle = 0,
+        sunAngle = 0
+    $: {
+        sunAngle = northAngle + pos.azimuth + Math.PI
+    }
 
     let markers
     $: {
@@ -74,26 +93,8 @@
         return pos.azimuth + Math.PI
     }
 
-    function handleMousemove(event) {
-        if (mousedown) {
-            if (event.touches) {
-                event.clientX = event.touches[0].pageX
-                event.clientY = event.touches[0].pageY
-            }
-            let loc = cursorPoint(event)
-            offsetAzimuth = Math.atan2(loc.y, loc.x)
-        }
-    }
-
-    let mousedown = false
-    function handleMousedown(event) {
-        mousedown = true
-    }
-    function handleMouseup(event) {
-        mousedown = false
-    }
     function startQuiz() {
-        if (showHints) {
+        if (!quizInProgress) {
             /*
             offsetAzimuth = Math.random() * 2 * Math.PI
             hour = Math.floor(Math.random() * (21 - 6) + 6)
@@ -105,7 +106,9 @@
             let lat2 = Number(lat + size).toFixed(3)
             let lng2 = Number(lng + size).toFixed(3)
             image = undefined
-            showHints = false
+            quizInProgress = true
+            northAngle = 0
+            sunAngle = 0
             fetch(
                 `https://graph.mapillary.com/images?access_token=MLY|7569500839758282|7b3b3eced40c887cc2867488d6a50220&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url&bbox=${lng1},${lat1},${lng2},${lat2}&limit=1`,
             )
@@ -123,147 +126,78 @@
                     quizButtonText = "Reveal"
 
                     image = entry["thumb_1024_url"]
-                    solution = entry["computed_compass_angle"]
+                    northAngle =
+                        (-entry["computed_compass_angle"] / 360.0) * 2 * Math.PI
+
+                    date = new Date()
+                    date.toLocaleString("en-US", {timeZone: timezoneString})
+                    date.setHours(Math.floor(hour), (hour % 1) * 60, 0)
+                    date.setMonth(month - 1)
+                    pos = SunCalc.getPosition(date, lat, lng)
                 })
         } else {
-            showHints = true
             quizButtonText = "Quiz me!"
-            offsetAzimuth = (-solution / 360.0) * 2 * Math.PI - Math.PI / 2
+            quizInProgress = false
         }
     }
     function reset() {
         let date = new Date()
         hour = date.getHours()
         month = date.getMonth() + 1
-        showHints = true
-    }
-
-    var pt, svg
-    onMount(async () => {
-        // Find your root SVG element
-        svg = document.querySelector("svg")
-
-        // Create an SVGPoint for future math
-        pt = svg.createSVGPoint()
-    })
-
-    // Get point in global SVG space
-    function cursorPoint(evt) {
-        pt.x = evt.clientX
-        pt.y = evt.clientY
-        return pt.matrixTransform(svg.getScreenCTM().inverse())
+        quizInProgress = false
     }
 </script>
 
 <main>
     <div id="controls">
-        <input type="range" bind:value={month} min="1" max="12" step="1" />
-        Month: {month}
-        <br />
-        <input type="range" bind:value={hour} min="0" max="24" step="0.01666" />
-        Hour: {hour}
-        <br />
+        <div class="big">{Math.round(hour)}:00</div>
+        <input
+            type="range"
+            bind:value={hour}
+            min="0"
+            max="24"
+            step="0.01666"
+            disabled={quizInProgress}
+        />
+        <div class="big">{monthNames[month - 1]}</div>
+        <input
+            type="range"
+            bind:value={month}
+            min="1"
+            max="12"
+            step="1"
+            disabled={quizInProgress}
+        />
+        <!--
         <input type="range" bind:value={lat} min="-90" max="90" />
         Lat: {String(lat.toFixed(3)).padStart(3, "0")}
         <br />
         <input type="range" bind:value={lng} min="-180" max="180" />
         Lon: {String(lng.toFixed(3)).padStart(3, "0")}
         <br />
-        <a
+        -->
+        <!--<a
             href="https://www.openstreetmap.org/?mlat={lat}&mlon={lng}"
             target="_blank">OSM</a
         >
         <br />
         {timezoneString}<br />
-        <button on:click={reset}>Reset</button>
-        <div
-            on:mousedown={handleMousedown}
-            on:mouseup={handleMouseup}
-            on:mousemove={handleMousemove}
-            on:touchstart={handleMousedown}
-            on:touchend={handleMouseup}
-            on:touchmove={handleMousemove}
-        >
-            <svg width="400" height="400" viewBox="-0.5 -0.5 1 1">
-                <circle
-                    cx="0"
-                    cy="0"
-                    r="0.4"
-                    fill="none"
-                    stroke="black"
-                    stroke-width="0.005"
-                />
-                {#each markers as marker}
-                    <circle
-                        cx={0.4 *
-                            marker.radius *
-                            Math.cos(marker.azimuth + offsetAzimuth)}
-                        cy={0.4 *
-                            marker.radius *
-                            Math.sin(marker.azimuth + offsetAzimuth)}
-                        r="0.07"
-                        fill="white"
-                    />
-                {/each}
-                {#if showHints}
-                    <circle
-                        cx={0.3 * Math.cos(sunAzimuth + offsetAzimuth)}
-                        cy={0.3 * Math.sin(sunAzimuth + offsetAzimuth)}
-                        r="0.05"
-                        fill="yellow"
-                        stroke="black"
-                        stroke-width="0.005"
-                    />
-                {/if}
-                {#each markers as marker}
-                    {#if marker.radius === 1 || showHints}
-                        <text
-                            text-anchor="middle"
-                            alignment-baseline="central"
-                            font-size={0.1 * marker.size}
-                        >
-                            <tspan
-                                x={0.4 *
-                                    marker.radius *
-                                    Math.cos(marker.azimuth + offsetAzimuth)}
-                                y={0.4 *
-                                    marker.radius *
-                                    Math.sin(marker.azimuth + offsetAzimuth) +
-                                    0.03}>{marker.label}</tspan
-                            >
-                        </text>
-                    {/if}
-                {/each}
-                {#if showHints}
-                    <line
-                        x1="0"
-                        y1="0"
-                        x2={0.3 *
-                            Math.cos(sunAzimuth - Math.PI + offsetAzimuth)}
-                        y2={0.3 *
-                            Math.sin(sunAzimuth - Math.PI + offsetAzimuth)}
-                        stroke="black"
-                        stroke-width="0.05"
-                    />
-                    <circle
-                        cx={0.3 *
-                            Math.cos(sunAzimuth - Math.PI + offsetAzimuth)}
-                        cy={0.3 *
-                            Math.sin(sunAzimuth - Math.PI + offsetAzimuth)}
-                        r="0.025"
-                        fill="black"
-                    />
-                    <circle
-                        cx="0"
-                        cy="0"
-                        r="0.025"
-                        fill="grey"
-                        stroke="black"
-                        stroke-width="0.005"
-                    />
-                {/if}
-            </svg>
-        </div>
+        <button on:click={reset}>Reset</button>-->
+        <Compass
+            {markers}
+            {yourNorthAngle}
+            {yourSunAngle}
+            showHints={false}
+        /><br />
+        {#if !quizInProgress}
+            Solution:<br />
+            <Compass
+                {markers}
+                {northAngle}
+                {sunAngle}
+                showHints={!quizInProgress}
+            /><br />
+        {/if}
         <button on:click={startQuiz}>{quizButtonText}</button>
     </div>
     <div id="photo">
@@ -277,9 +211,11 @@
     main {
         display: flex;
     }
-    #controls {
+    input[type="range"] {
+        width: 18rem;
     }
-    #photo {
+    .big {
+        font-size: 150%;
     }
     svg {
         touch-action: none;
