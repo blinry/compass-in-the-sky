@@ -165,10 +165,15 @@
     Hour: {hour}
     <br />
     <input type="range" bind:value={lat} min="-90" max="90" />
-    Lat: {String(lat.toFixed(2)).padStart(2, "0")}
+    Lat: {String(lat.toFixed(3)).padStart(3, "0")}
     <br />
     <input type="range" bind:value={lng} min="-180" max="180" />
-    Lon: {String(lng.toFixed(2)).padStart(2, "0")}
+    Lon: {String(lng.toFixed(3)).padStart(3, "0")}
+    <br />
+    <a
+        href="https://www.openstreetmap.org/?mlat={lat}&mlon={lng}"
+        target="_blank">OSM</a
+    >
     <br />
     {timezoneString}<br />
     <button on:click={reset}>Reset</button>
