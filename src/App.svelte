@@ -156,118 +156,130 @@
 </script>
 
 <main>
-    {#if image}
-        <img src={image} /><br />
-    {/if}
-    Month: <input type="number" bind:value={month} min="1" max="12" />
-    <br />
-    <input type="range" bind:value={hour} min="0" max="24" step="0.01666" />
-    Hour: {hour}
-    <br />
-    <input type="range" bind:value={lat} min="-90" max="90" />
-    Lat: {String(lat.toFixed(3)).padStart(3, "0")}
-    <br />
-    <input type="range" bind:value={lng} min="-180" max="180" />
-    Lon: {String(lng.toFixed(3)).padStart(3, "0")}
-    <br />
-    <a
-        href="https://www.openstreetmap.org/?mlat={lat}&mlon={lng}"
-        target="_blank">OSM</a
-    >
-    <br />
-    {timezoneString}<br />
-    <button on:click={reset}>Reset</button>
-    <div
-        on:mousedown={handleMousedown}
-        on:mouseup={handleMouseup}
-        on:mousemove={handleMousemove}
-        on:touchstart={handleMousedown}
-        on:touchend={handleMouseup}
-        on:touchmove={handleMousemove}
-    >
-        <svg width="400" height="400" viewBox="-0.5 -0.5 1 1">
-            <circle
-                cx="0"
-                cy="0"
-                r="0.4"
-                fill="none"
-                stroke="black"
-                stroke-width="0.005"
-            />
-            {#each markers as marker}
-                <circle
-                    cx={0.4 *
-                        marker.radius *
-                        Math.cos(marker.azimuth + offsetAzimuth)}
-                    cy={0.4 *
-                        marker.radius *
-                        Math.sin(marker.azimuth + offsetAzimuth)}
-                    r="0.07"
-                    fill="white"
-                />
-            {/each}
-            {#if showHints}
-                <circle
-                    cx={0.3 * Math.cos(sunAzimuth + offsetAzimuth)}
-                    cy={0.3 * Math.sin(sunAzimuth + offsetAzimuth)}
-                    r="0.05"
-                    fill="yellow"
-                    stroke="black"
-                    stroke-width="0.005"
-                />
-            {/if}
-            {#each markers as marker}
-                {#if marker.radius === 1 || showHints}
-                    <text
-                        text-anchor="middle"
-                        alignment-baseline="central"
-                        font-size={0.1 * marker.size}
-                    >
-                        <tspan
-                            x={0.4 *
-                                marker.radius *
-                                Math.cos(marker.azimuth + offsetAzimuth)}
-                            y={0.4 *
-                                marker.radius *
-                                Math.sin(marker.azimuth + offsetAzimuth) +
-                                0.03}>{marker.label}</tspan
-                        >
-                    </text>
-                {/if}
-            {/each}
-            {#if showHints}
-                <line
-                    x1="0"
-                    y1="0"
-                    x2={0.3 * Math.cos(sunAzimuth - Math.PI + offsetAzimuth)}
-                    y2={0.3 * Math.sin(sunAzimuth - Math.PI + offsetAzimuth)}
-                    stroke="black"
-                    stroke-width="0.05"
-                />
-                <circle
-                    cx={0.3 * Math.cos(sunAzimuth - Math.PI + offsetAzimuth)}
-                    cy={0.3 * Math.sin(sunAzimuth - Math.PI + offsetAzimuth)}
-                    r="0.025"
-                    fill="black"
-                />
+    <div id="controls">
+        <input type="range" bind:value={month} min="1" max="12" step="1" />
+        Month: {month}
+        <br />
+        <input type="range" bind:value={hour} min="0" max="24" step="0.01666" />
+        Hour: {hour}
+        <br />
+        <input type="range" bind:value={lat} min="-90" max="90" />
+        Lat: {String(lat.toFixed(3)).padStart(3, "0")}
+        <br />
+        <input type="range" bind:value={lng} min="-180" max="180" />
+        Lon: {String(lng.toFixed(3)).padStart(3, "0")}
+        <br />
+        <a
+            href="https://www.openstreetmap.org/?mlat={lat}&mlon={lng}"
+            target="_blank">OSM</a
+        >
+        <br />
+        {timezoneString}<br />
+        <button on:click={reset}>Reset</button>
+        <div
+            on:mousedown={handleMousedown}
+            on:mouseup={handleMouseup}
+            on:mousemove={handleMousemove}
+            on:touchstart={handleMousedown}
+            on:touchend={handleMouseup}
+            on:touchmove={handleMousemove}
+        >
+            <svg width="400" height="400" viewBox="-0.5 -0.5 1 1">
                 <circle
                     cx="0"
                     cy="0"
-                    r="0.025"
-                    fill="grey"
+                    r="0.4"
+                    fill="none"
                     stroke="black"
                     stroke-width="0.005"
                 />
-            {/if}
-        </svg>
+                {#each markers as marker}
+                    <circle
+                        cx={0.4 *
+                            marker.radius *
+                            Math.cos(marker.azimuth + offsetAzimuth)}
+                        cy={0.4 *
+                            marker.radius *
+                            Math.sin(marker.azimuth + offsetAzimuth)}
+                        r="0.07"
+                        fill="white"
+                    />
+                {/each}
+                {#if showHints}
+                    <circle
+                        cx={0.3 * Math.cos(sunAzimuth + offsetAzimuth)}
+                        cy={0.3 * Math.sin(sunAzimuth + offsetAzimuth)}
+                        r="0.05"
+                        fill="yellow"
+                        stroke="black"
+                        stroke-width="0.005"
+                    />
+                {/if}
+                {#each markers as marker}
+                    {#if marker.radius === 1 || showHints}
+                        <text
+                            text-anchor="middle"
+                            alignment-baseline="central"
+                            font-size={0.1 * marker.size}
+                        >
+                            <tspan
+                                x={0.4 *
+                                    marker.radius *
+                                    Math.cos(marker.azimuth + offsetAzimuth)}
+                                y={0.4 *
+                                    marker.radius *
+                                    Math.sin(marker.azimuth + offsetAzimuth) +
+                                    0.03}>{marker.label}</tspan
+                            >
+                        </text>
+                    {/if}
+                {/each}
+                {#if showHints}
+                    <line
+                        x1="0"
+                        y1="0"
+                        x2={0.3 *
+                            Math.cos(sunAzimuth - Math.PI + offsetAzimuth)}
+                        y2={0.3 *
+                            Math.sin(sunAzimuth - Math.PI + offsetAzimuth)}
+                        stroke="black"
+                        stroke-width="0.05"
+                    />
+                    <circle
+                        cx={0.3 *
+                            Math.cos(sunAzimuth - Math.PI + offsetAzimuth)}
+                        cy={0.3 *
+                            Math.sin(sunAzimuth - Math.PI + offsetAzimuth)}
+                        r="0.025"
+                        fill="black"
+                    />
+                    <circle
+                        cx="0"
+                        cy="0"
+                        r="0.025"
+                        fill="grey"
+                        stroke="black"
+                        stroke-width="0.005"
+                    />
+                {/if}
+            </svg>
+        </div>
+        <button on:click={startQuiz}>{quizButtonText}</button>
     </div>
-    <button on:click={startQuiz}>{quizButtonText}</button>
+    <div id="photo">
+        {#if image}
+            <img src={image} /><br />
+        {/if}
+    </div>
 </main>
 
 <style>
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-        opacity: 1;
+    main {
+        display: flex;
+    }
+    #controls {
+    }
+    #photo {
     }
     svg {
         touch-action: none;
