@@ -24,6 +24,7 @@
 
     let hour, month
     let quizInProgress = false
+    let showYourCompass = false
     reset()
 
     let lat = 0
@@ -100,13 +101,14 @@
             hour = Math.floor(Math.random() * (21 - 6) + 6)
             month = Math.floor(Math.random() * 12) + 1
             */
-            let size = 0.1
+            let size = 0.01
             let lat1 = Number(lat - size).toFixed(3)
             let lng1 = Number(lng - size).toFixed(3)
             let lat2 = Number(lat + size).toFixed(3)
             let lng2 = Number(lng + size).toFixed(3)
             image = undefined
             quizInProgress = true
+            showYourCompass = true
             northAngle = 0
             sunAngle = 0
             fetch(
@@ -150,7 +152,6 @@
 
 <main>
     <div id="controls">
-        <div class="big">{Math.round(hour)}:00</div>
         <input
             type="range"
             bind:value={hour}
@@ -159,7 +160,8 @@
             step="0.01666"
             disabled={quizInProgress}
         />
-        <div class="big">{monthNames[month - 1]}</div>
+        <span class="big">{Math.round(hour)}:00</span>
+        <br />
         <input
             type="range"
             bind:value={month}
@@ -168,6 +170,8 @@
             step="1"
             disabled={quizInProgress}
         />
+        <span class="big">{monthNames[month - 1]}</span>
+        <br />
         <!--
         <input type="range" bind:value={lat} min="-90" max="90" />
         Lat: {String(lat.toFixed(3)).padStart(3, "0")}
@@ -183,20 +187,22 @@
         <br />
         {timezoneString}<br />
         <button on:click={reset}>Reset</button>-->
-        <Compass
-            {markers}
-            {yourNorthAngle}
-            {yourSunAngle}
-            showHints={false}
-        /><br />
+        {#if showYourCompass}
+            <Compass
+                {markers}
+                {yourNorthAngle}
+                {yourSunAngle}
+                showHints={false}
+            />
+        {/if}
         {#if !quizInProgress}
-            Solution:<br />
             <Compass
                 {markers}
                 {northAngle}
                 {sunAngle}
                 showHints={!quizInProgress}
-            /><br />
+                interactive={false}
+            />
         {/if}
         <button on:click={startQuiz}>{quizButtonText}</button>
     </div>
@@ -222,5 +228,8 @@
     }
     * {
         user-select: none;
+    }
+    img {
+        padding: 1rem;
     }
 </style>

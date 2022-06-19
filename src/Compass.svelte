@@ -5,6 +5,7 @@
     export let northAngle = 0
     export let sunAngle = 0
     export let showHints = true
+    export let interactive = true
 
     var pt, svg
     onMount(async () => {
@@ -36,16 +37,18 @@
     let movingSun = false
     let movingCompass = false
     function handleMousedown(event) {
-        if (event.touches) {
-            event.clientX = event.touches[0].pageX
-            event.clientY = event.touches[0].pageY
-        }
-        let loc = cursorPoint(event)
-        let d = Math.sqrt(loc.x ** 2 + loc.y ** 2)
-        if (d < 0.35) {
-            movingSun = true
-        } else {
-            movingCompass = true
+        if (interactive) {
+            if (event.touches) {
+                event.clientX = event.touches[0].pageX
+                event.clientY = event.touches[0].pageY
+            }
+            let loc = cursorPoint(event)
+            let d = Math.sqrt(loc.x ** 2 + loc.y ** 2)
+            if (d < 0.35) {
+                movingSun = true
+            } else {
+                movingCompass = true
+            }
         }
     }
     function handleMouseup(event) {
