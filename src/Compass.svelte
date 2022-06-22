@@ -5,6 +5,8 @@
     export let northAngle = 0
     export let sunAngle = 0
     export let showHints = true
+    export let showDirections = true
+    export let showSun = true
     export let interactive = true
 
     var pt, svg
@@ -75,27 +77,31 @@
             stroke-width="0.005"
         />
         {#each markers as marker}
-            <circle
-                cx={0.4 *
-                    marker.radius *
-                    Math.cos(marker.azimuth + northAngle - Math.PI / 2)}
-                cy={0.4 *
-                    marker.radius *
-                    Math.sin(marker.azimuth + northAngle - Math.PI / 2)}
-                r="0.07"
-                fill="white"
-            />
+            {#if (marker.radius === 1 || showHints) && showDirections}
+                <circle
+                    cx={0.4 *
+                        marker.radius *
+                        Math.cos(marker.azimuth + northAngle - Math.PI / 2)}
+                    cy={0.4 *
+                        marker.radius *
+                        Math.sin(marker.azimuth + northAngle - Math.PI / 2)}
+                    r="0.07"
+                    fill="white"
+                />
+            {/if}
         {/each}
-        <circle
-            cx={0.3 * Math.cos(sunAngle - Math.PI / 2)}
-            cy={0.3 * Math.sin(sunAngle - Math.PI / 2)}
-            r="0.05"
-            fill="yellow"
-            stroke="black"
-            stroke-width="0.005"
-        />
+        {#if showSun}
+            <circle
+                cx={0.3 * Math.cos(sunAngle - Math.PI / 2)}
+                cy={0.3 * Math.sin(sunAngle - Math.PI / 2)}
+                r="0.05"
+                fill="yellow"
+                stroke="black"
+                stroke-width="0.005"
+            />
+        {/if}
         {#each markers as marker}
-            {#if marker.radius === 1 || showHints}
+            {#if (marker.radius === 1 || showHints) && showDirections}
                 <text
                     text-anchor="middle"
                     alignment-baseline="central"
@@ -115,28 +121,30 @@
                 </text>
             {/if}
         {/each}
-        <line
-            x1="0"
-            y1="0"
-            x2={0.3 * Math.cos(sunAngle + Math.PI / 2)}
-            y2={0.3 * Math.sin(sunAngle + Math.PI / 2)}
-            stroke="black"
-            stroke-width="0.05"
-        />
-        <circle
-            cx={0.3 * Math.cos(sunAngle + Math.PI / 2)}
-            cy={0.3 * Math.sin(sunAngle + Math.PI / 2)}
-            r="0.025"
-            fill="black"
-        />
-        <circle
-            cx="0"
-            cy="0"
-            r="0.025"
-            fill="grey"
-            stroke="black"
-            stroke-width="0.005"
-        />
+        {#if showSun}
+            <line
+                x1="0"
+                y1="0"
+                x2={0.3 * Math.cos(sunAngle + Math.PI / 2)}
+                y2={0.3 * Math.sin(sunAngle + Math.PI / 2)}
+                stroke="black"
+                stroke-width="0.05"
+            />
+            <circle
+                cx={0.3 * Math.cos(sunAngle + Math.PI / 2)}
+                cy={0.3 * Math.sin(sunAngle + Math.PI / 2)}
+                r="0.025"
+                fill="black"
+            />
+            <circle
+                cx="0"
+                cy="0"
+                r="0.025"
+                fill="grey"
+                stroke="black"
+                stroke-width="0.005"
+            />
+        {/if}
     </svg>
 </div>
 

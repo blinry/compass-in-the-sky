@@ -1,7 +1,32 @@
 <script>
+    import {onMount} from "svelte"
     import Compass from "./Compass.svelte"
     import SunCalc from "suncalc"
     import findTZ from "tz-lookup"
+
+    // 0: overview
+    // 1: guess sun direction
+    // 2: also guess compass
+    // 3: press arrow keys to specify direction
+    let level = 1
+    let points = 0
+    let bonus = undefined
+
+    let levels = {
+        1: {
+            name: "Find the sun",
+            description:
+                "Learn how to find north using the sun! The first step is to estimate the direction of the sun. Estimate whether the sun is ahead, behind, or to the left or right of you in the photo, and drag the sun icon to the correct position.",
+        },
+        2: {
+            name: "Find north",
+            description: "Guess the sun direction and the compass orientation.",
+        },
+        3: {
+            name: "Find any direction",
+            description: "Do it all in your head, then guess where north is.",
+        },
+    }
 
     const monthNames = [
         "January",
@@ -31,15 +56,9 @@
     let lng = 0
     let timezoneString = "UTC"
 
-    navigator.geolocation.getCurrentPosition(function (position) {
-        lat = position.coords.latitude
-        lng = position.coords.longitude
-    })
-
     $: timezoneString = findTZ(lat, lng)
 
     let pos
-    let quizButtonText = "Quiz me!"
 
     let date
     $: {
@@ -61,14 +80,16 @@
         markers = []
 
         markers.push({label: "N", size: 1, radius: 1, azimuth: 0})
-        markers.push({label: "E", size: 1, radius: 1, azimuth: Math.PI / 2})
-        markers.push({label: "S", size: 1, radius: 1, azimuth: Math.PI})
-        markers.push({
-            label: "W",
-            size: 1,
-            radius: 1,
-            azimuth: (Math.PI * 3) / 2,
-        })
+        if (level >= 4 || level <= 2) {
+            markers.push({label: "E", size: 1, radius: 1, azimuth: Math.PI / 2})
+            markers.push({label: "S", size: 1, radius: 1, azimuth: Math.PI})
+            markers.push({
+                label: "W",
+                size: 1,
+                radius: 1,
+                azimuth: (Math.PI * 3) / 2,
+            })
+        }
 
         let times = SunCalc.getTimes(date, lat, lng)
         let sunriseHour = times.sunrise.getHours()
@@ -95,130 +116,197 @@
     }
 
     function startQuiz() {
-        if (!quizInProgress) {
-            /*
-            offsetAzimuth = Math.random() * 2 * Math.PI
-            hour = Math.floor(Math.random() * (21 - 6) + 6)
-            month = Math.floor(Math.random() * 12) + 1
-            */
-            let size = 0.01
-            let lat1 = Number(lat - size).toFixed(3)
-            let lng1 = Number(lng - size).toFixed(3)
-            let lat2 = Number(lat + size).toFixed(3)
-            let lng2 = Number(lng + size).toFixed(3)
-            image = undefined
-            quizInProgress = true
-            showYourCompass = true
-            northAngle = 0
-            sunAngle = 0
-            fetch(
-                `https://graph.mapillary.com/images?access_token=MLY|7569500839758282|7b3b3eced40c887cc2867488d6a50220&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url&bbox=${lng1},${lat1},${lng2},${lat2}&limit=1`,
-            )
-                .then((response) => response.json())
-                .then((json) => {
-                    let entry = json.data[0]
+        bonus = undefined
+        let size = 0.01
+        let lat1 = Number(lat - size).toFixed(3)
+        let lng1 = Number(lng - size).toFixed(3)
+        let lat2 = Number(lat + size).toFixed(3)
+        let lng2 = Number(lng + size).toFixed(3)
+        image = undefined
+        quizInProgress = true
+        showYourCompass = true
+        northAngle = 0
+        sunAngle = 0
+        fetch(
+            `https://graph.mapillary.com/images?access_token=MLY|7569500839758282|7b3b3eced40c887cc2867488d6a50220&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url&bbox=${lng1},${lat1},${lng2},${lat2}&limit=1`,
+        )
+            .then((response) => response.json())
+            .then((json) => {
+                let entry = json.data[0]
 
-                    let timestamp = parseInt(entry["captured_at"])
-                    let date = new Date(timestamp)
-                    month = date.getMonth() + 1
-                    hour = date.getHours()
-                    lat = entry["computed_geometry"]["coordinates"][1]
-                    lng = entry["computed_geometry"]["coordinates"][0]
+                let timestamp = parseInt(entry["captured_at"])
+                let date = new Date(timestamp)
+                month = date.getMonth() + 1
+                hour = date.getHours()
+                lat = entry["computed_geometry"]["coordinates"][1]
+                lng = entry["computed_geometry"]["coordinates"][0]
 
-                    quizButtonText = "Reveal"
+                image = entry["thumb_1024_url"]
+                northAngle =
+                    (-entry["computed_compass_angle"] / 360.0) * 2 * Math.PI
 
-                    image = entry["thumb_1024_url"]
-                    northAngle =
-                        (-entry["computed_compass_angle"] / 360.0) * 2 * Math.PI
-
-                    date = new Date()
-                    date.toLocaleString("en-US", {timeZone: timezoneString})
-                    date.setHours(Math.floor(hour), (hour % 1) * 60, 0)
-                    date.setMonth(month - 1)
-                    pos = SunCalc.getPosition(date, lat, lng)
-                })
-        } else {
-            quizButtonText = "Quiz me!"
-            quizInProgress = false
-        }
+                date = new Date()
+                date.toLocaleString("en-US", {timeZone: timezoneString})
+                date.setHours(Math.floor(hour), (hour % 1) * 60, 0)
+                date.setMonth(month - 1)
+                pos = SunCalc.getPosition(date, lat, lng)
+            })
     }
+
+    function solve() {
+        quizInProgress = false
+        if (level == 1) {
+            let angleDiff = yourSunAngle - sunAngle
+            angleDiff = Math.abs(
+                ((angleDiff + Math.PI) % (2 * Math.PI)) - Math.PI,
+            )
+            bonus = 10 * Math.max(0, -2 * (angleDiff / Math.PI) + 1)
+        }
+        bonus = Math.round(bonus)
+        points += bonus
+    }
+
     function reset() {
         let date = new Date()
         hour = date.getHours()
         month = date.getMonth() + 1
         quizInProgress = false
     }
+
+    onMount(async () => {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            lat = position.coords.latitude
+            lng = position.coords.longitude
+            startQuiz()
+        })
+    })
 </script>
 
 <main>
-    <div id="controls">
-        <input
-            type="range"
-            bind:value={hour}
-            min="0"
-            max="24"
-            step="0.01666"
-            disabled={quizInProgress}
-        />
-        <span class="big">{Math.round(hour)}:00</span>
-        <br />
-        <input
-            type="range"
-            bind:value={month}
-            min="1"
-            max="12"
-            step="1"
-            disabled={quizInProgress}
-        />
-        <span class="big">{monthNames[month - 1]}</span>
-        <br />
-        <!--
-        <input type="range" bind:value={lat} min="-90" max="90" />
-        Lat: {String(lat.toFixed(3)).padStart(3, "0")}
-        <br />
-        <input type="range" bind:value={lng} min="-180" max="180" />
-        Lon: {String(lng.toFixed(3)).padStart(3, "0")}
-        <br />
-        -->
-        <!--<a
-            href="https://www.openstreetmap.org/?mlat={lat}&mlon={lng}"
-            target="_blank">OSM</a
-        >
-        <br />
-        {timezoneString}<br />
-        <button on:click={reset}>Reset</button>-->
-        {#if showYourCompass}
-            <Compass
-                {markers}
-                {yourNorthAngle}
-                {yourSunAngle}
-                showHints={false}
-            />
-        {/if}
-        {#if !quizInProgress}
-            <Compass
-                {markers}
-                {northAngle}
-                {sunAngle}
-                showHints={!quizInProgress}
-                interactive={false}
-            />
-        {/if}
-        <button on:click={startQuiz}>{quizButtonText}</button>
+    <div id="level-select">
+        <div id="top-row">
+            <input type="range" bind:value={level} min="0" max="5" step="1" />
+            <span class="big">Level {level}: {levels[level].name}</span>
+            <div class="filler" />
+            <span
+                >You have <span class="big">{Math.round(points)}</span> points</span
+            >
+        </div>
+        <div>{levels[level].description}</div>
     </div>
-    <div id="photo">
-        {#if image}
-            <img src={image} /><br />
-        {/if}
+    <div id="content">
+        <div id="controls">
+            {#if quizInProgress}
+                {#if level >= 2}
+                    <input
+                        type="range"
+                        bind:value={hour}
+                        min="0"
+                        max="24"
+                        step="0.01666"
+                        disabled={quizInProgress}
+                    />
+                    <span class="big">{Math.round(hour)}:00</span>
+                    <br />
+                    <input
+                        type="range"
+                        bind:value={month}
+                        min="1"
+                        max="12"
+                        step="1"
+                        disabled={quizInProgress}
+                    />
+                    <span class="big">{monthNames[month - 1]}</span>
+                    <br />
+                {/if}
+            {/if}
+            <div id="compass">
+                {#if showYourCompass}
+                    <div class={quizInProgress ? "" : "transparent"}>
+                        <Compass
+                            {markers}
+                            bind:northAngle={yourNorthAngle}
+                            bind:sunAngle={yourSunAngle}
+                            showHints={false}
+                            showDirections={level >= 2}
+                            showSun={level <= 2}
+                        />
+                    </div>
+                {/if}
+                {#if !quizInProgress && showYourCompass}
+                    <div>
+                        <Compass
+                            {markers}
+                            {northAngle}
+                            {sunAngle}
+                            showHints={level >= 2}
+                            showDirections={level >= 2}
+                            interactive={false}
+                        />
+                    </div>
+                {/if}
+            </div>
+            {#if quizInProgress}
+                <button on:click={solve}>Show solution</button>
+                <button on:click={startQuiz}>Give me another photo</button>
+            {:else}
+                <button on:click={startQuiz}>New quiz!</button>
+            {/if}
+            {#if bonus !== undefined}
+                <div>You got {bonus} points!</div>
+            {/if}
+        </div>
+        <div id="photo">
+            {#if image}
+                <img src={image} /><br />
+            {/if}
+        </div>
     </div>
 </main>
 
 <style>
     main {
         display: flex;
+        flex-direction: column;
+    }
+    #level-select {
+        background: #eee;
+        padding: 1rem;
+    }
+    #top-row {
+        display: flex;
+    }
+    .filler {
+        flex-grow: 1;
+    }
+    #content {
+        display: flex;
+        flex-grow: 1;
+    }
+    #controls {
+        padding: 1rem;
+        background: #f6f6f6;
+        width: 20rem;
+    }
+    #photo {
+        background: lightblue;
+        flex-grow: 1;
+    }
+    #compass {
+        height: 20rem;
+        position: relative;
+    }
+    #compass div {
+        position: absolute;
+        top: 0;
+        left: 0;
     }
     input[type="range"] {
         width: 18rem;
+    }
+    img {
+        max-width: 100%;
+        max-height: 100%;
     }
     .big {
         font-size: 150%;
@@ -226,10 +314,10 @@
     svg {
         touch-action: none;
     }
+    .transparent {
+        opacity: 10%;
+    }
     * {
         user-select: none;
-    }
-    img {
-        padding: 1rem;
     }
 </style>
