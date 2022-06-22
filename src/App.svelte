@@ -17,14 +17,23 @@
             name: "Find the sun",
             description:
                 "Learn how to find north using the sun! The first step is to estimate the direction of the sun. Estimate whether the sun is ahead, behind, or to the left or right of you in the photo, and drag the sun icon to the correct position.",
+            requiredPoints: 0,
         },
         2: {
             name: "Find north",
-            description: "Guess the sun direction and the compass orientation.",
+            description:
+                "Now we add the second step: after guessing the sun direction, also drag the compass to point in the right direction!",
+            requiredPoints: 30,
         },
         3: {
-            name: "Find any direction",
+            name: "Directly find north",
             description: "Do it all in your head, then guess where north is.",
+            requiredPoints: 60,
+        },
+        4: {
+            name: "Impossible level",
+            description: "",
+            requiredPoints: 999999,
         },
     }
 
@@ -155,15 +164,21 @@
 
     function solve() {
         quizInProgress = false
+        let angleDiff
         if (level == 1) {
-            let angleDiff = yourSunAngle - sunAngle
-            angleDiff = Math.abs(
-                ((angleDiff + Math.PI) % (2 * Math.PI)) - Math.PI,
-            )
-            bonus = 10 * Math.max(0, -2 * (angleDiff / Math.PI) + 1)
+            angleDiff = yourSunAngle - sunAngle
+        } else {
+            angleDiff = yourNorthAngle - northAngle
         }
+        angleDiff = Math.abs(((angleDiff + Math.PI) % (2 * Math.PI)) - Math.PI)
+        bonus = 10 * Math.max(0, -2 * (angleDiff / Math.PI) + 1)
         bonus = Math.round(bonus)
         points += bonus
+    }
+
+    function nextLevel() {
+        level += 1
+        startQuiz()
     }
 
     function reset() {
@@ -174,6 +189,10 @@
     }
 
     onMount(async () => {
+        window.addEventListener("contextmenu", function (e) {
+            e.preventDefault()
+        })
+
         navigator.geolocation.getCurrentPosition(function (position) {
             lat = position.coords.latitude
             lng = position.coords.longitude
@@ -189,14 +208,15 @@
             <span class="big">Level {level}: {levels[level].name}</span>
             <div class="filler" />
             <span
-                >You have <span class="big">{Math.round(points)}</span> points</span
+                >You have <span class="big">{Math.round(points)}</span> points.
+                You need {levels[level + 1].requiredPoints} to unlock the next level.</span
             >
         </div>
         <div>{levels[level].description}</div>
     </div>
     <div id="content">
         <div id="controls">
-            {#if quizInProgress}
+            {#if showYourCompass}
                 {#if level >= 2}
                     <input
                         type="range"
@@ -255,6 +275,10 @@
             {#if bonus !== undefined}
                 <div>You got {bonus} points!</div>
             {/if}
+            {#if points >= levels[level + 1].requiredPoints}
+                <div>You have unlocked the next level!</div>
+                <button on:click={nextLevel}>Next level</button>
+            {/if}
         </div>
         <div id="photo">
             {#if image}
@@ -285,7 +309,6 @@
     }
     #controls {
         padding: 1rem;
-        background: #f6f6f6;
         width: 20rem;
     }
     #photo {

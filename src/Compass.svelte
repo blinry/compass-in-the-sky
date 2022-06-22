@@ -77,7 +77,7 @@
             stroke-width="0.005"
         />
         {#each markers as marker}
-            {#if (marker.radius === 1 || showHints) && showDirections}
+            {#if false && (marker.radius === 1 || showHints) && showDirections}
                 <circle
                     cx={0.4 *
                         marker.radius *
