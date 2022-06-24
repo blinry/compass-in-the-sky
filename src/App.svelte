@@ -4,6 +4,8 @@
     import SunCalc from "suncalc"
     import findTZ from "tz-lookup"
 
+    import {calcAzimuth} from "./sun.js"
+
     // 0: overview
     // 1: guess sun direction
     // 2: also guess compass
@@ -107,21 +109,13 @@
         for (let hour2 = sunriseHour; hour2 <= sunsetHour; hour2 += 1) {
             markers.push({
                 label: "" + hour2,
-                azimuth: calcAzimuth(month, hour2),
+                azimuth: calcAzimuth(date, lat, lng, month, hour2),
                 size: 0.4,
                 radius: 0.8,
             })
         }
 
         //markers.forEach((m) => (m.azimuth += offsetAzimuth))
-    }
-
-    function calcAzimuth(month, hour) {
-        let date2 = new Date(date)
-        date2.setHours(Math.floor(hour), (hour % 1) * 60, 0)
-        date2.setMonth(month - 1)
-        pos = SunCalc.getPosition(date2, lat, lng)
-        return pos.azimuth + Math.PI
     }
 
     function startQuiz() {
@@ -292,6 +286,7 @@
     main {
         display: flex;
         flex-direction: column;
+        height: 100vh;
     }
     #level-select {
         background: #eee;
