@@ -1,20 +1,24 @@
 <script>
     import {onMount} from "svelte"
     import Compass from "./Compass.svelte"
-    import SunCalc from "suncalc"
+    import CheatSheet from "./CheatSheet.svelte"
+    import SunCalc from "./suncalc.js"
     import findTZ from "tz-lookup"
-
-    import {calcAzimuth} from "./sun.js"
 
     // 0: overview
     // 1: guess sun direction
     // 2: also guess compass
     // 3: press arrow keys to specify direction
-    let level = 1
+    let level = 0
     let points = 0
     let bonus = undefined
 
     let levels = {
+        0: {
+            name: "Introduction",
+            description: "TBD",
+            requiredPoints: 0,
+        },
         1: {
             name: "Find the sun",
             description:
@@ -84,38 +88,6 @@
         sunAngle = 0
     $: {
         sunAngle = northAngle + pos.azimuth + Math.PI
-    }
-
-    let markers
-    $: {
-        markers = []
-
-        markers.push({label: "N", size: 1, radius: 1, azimuth: 0})
-        if (level >= 4 || level <= 2) {
-            markers.push({label: "E", size: 1, radius: 1, azimuth: Math.PI / 2})
-            markers.push({label: "S", size: 1, radius: 1, azimuth: Math.PI})
-            markers.push({
-                label: "W",
-                size: 1,
-                radius: 1,
-                azimuth: (Math.PI * 3) / 2,
-            })
-        }
-
-        let times = SunCalc.getTimes(date, lat, lng)
-        let sunriseHour = times.sunrise.getHours()
-        let sunsetHour = times.sunset.getHours()
-
-        for (let hour2 = sunriseHour; hour2 <= sunsetHour; hour2 += 1) {
-            markers.push({
-                label: "" + hour2,
-                azimuth: calcAzimuth(date, lat, lng, month, hour2),
-                size: 0.4,
-                radius: 0.8,
-            })
-        }
-
-        //markers.forEach((m) => (m.azimuth += offsetAzimuth))
     }
 
     function startQuiz() {
@@ -202,83 +174,94 @@
             <span class="big">Level {level}: {levels[level].name}</span>
             <div class="filler" />
             <span
-                >You have <span class="big">{Math.round(points)}</span> points.
-                You need {levels[level + 1].requiredPoints} to unlock the next level.</span
+                >You have <span class="big">{Math.round(points)}</span>
+                points. You need {levels[level + 1].requiredPoints} to unlock the
+                next level.</span
             >
         </div>
         <div>{levels[level].description}</div>
     </div>
     <div id="content">
-        <div id="controls">
-            {#if showYourCompass}
-                {#if level >= 2}
-                    <input
-                        type="range"
-                        bind:value={hour}
-                        min="0"
-                        max="24"
-                        step="0.01666"
-                        disabled={quizInProgress}
-                    />
-                    <span class="big">{Math.round(hour)}:00</span>
-                    <br />
-                    <input
-                        type="range"
-                        bind:value={month}
-                        min="1"
-                        max="12"
-                        step="1"
-                        disabled={quizInProgress}
-                    />
-                    <span class="big">{monthNames[month - 1]}</span>
-                    <br />
-                {/if}
-            {/if}
-            <div id="compass">
+        {#if level == 0}
+            <CheatSheet />
+        {:else}
+            <div id="controls">
                 {#if showYourCompass}
-                    <div class={quizInProgress ? "" : "transparent"}>
-                        <Compass
-                            {markers}
-                            bind:northAngle={yourNorthAngle}
-                            bind:sunAngle={yourSunAngle}
-                            showHints={false}
-                            showDirections={level >= 2}
-                            showSun={level <= 2}
+                    {#if level >= 2}
+                        <input
+                            type="range"
+                            bind:value={hour}
+                            min="0"
+                            max="24"
+                            step="0.01666"
+                            disabled={quizInProgress}
                         />
-                    </div>
+                        <span class="big">{Math.round(hour)}:00</span>
+                        <br />
+                        <input
+                            type="range"
+                            bind:value={month}
+                            min="1"
+                            max="12"
+                            step="1"
+                            disabled={quizInProgress}
+                        />
+                        <span class="big">{monthNames[month - 1]}</span>
+                        <br />
+                    {/if}
                 {/if}
-                {#if !quizInProgress && showYourCompass}
-                    <div>
-                        <Compass
-                            {markers}
-                            {northAngle}
-                            {sunAngle}
-                            showHints={level >= 2}
-                            showDirections={level >= 2}
-                            interactive={false}
-                        />
-                    </div>
+                <div id="compass">
+                    {#if showYourCompass}
+                        <div class={quizInProgress ? "" : "transparent"}>
+                            <Compass
+                                {date}
+                                latitude={lat}
+                                longitude={lng}
+                                {level}
+                                bind:northAngle={yourNorthAngle}
+                                bind:sunAngle={yourSunAngle}
+                                showHints={false}
+                                showDirections={level >= 2}
+                                showSun={level <= 2}
+                            />
+                        </div>
+                    {/if}
+                    {#if !quizInProgress && showYourCompass}
+                        <div>
+                            <Compass
+                                {date}
+                                latitude={lat}
+                                longitude={lng}
+                                {level}
+                                {northAngle}
+                                {sunAngle}
+                                showHints={level >= 2}
+                                showDirections={level >= 2}
+                                interactive={false}
+                            />
+                        </div>
+                    {/if}
+                </div>
+                {#if quizInProgress}
+                    <button on:click={solve}>Show solution</button>
+                    <button on:click={startQuiz}>Give me another photo</button>
+                {:else}
+                    <button on:click={startQuiz}>New quiz!</button>
+                {/if}
+                {#if bonus !== undefined}
+                    <div>You got {bonus} points!</div>
+                {/if}
+                {#if points >= levels[level + 1].requiredPoints}
+                    <div>You have unlocked the next level!</div>
+                    <button on:click={nextLevel}>Next level</button>
                 {/if}
             </div>
-            {#if quizInProgress}
-                <button on:click={solve}>Show solution</button>
-                <button on:click={startQuiz}>Give me another photo</button>
-            {:else}
-                <button on:click={startQuiz}>New quiz!</button>
-            {/if}
-            {#if bonus !== undefined}
-                <div>You got {bonus} points!</div>
-            {/if}
-            {#if points >= levels[level + 1].requiredPoints}
-                <div>You have unlocked the next level!</div>
-                <button on:click={nextLevel}>Next level</button>
-            {/if}
-        </div>
-        <div id="photo">
-            {#if image}
-                <img src={image} /><br />
-            {/if}
-        </div>
+            <div id="photo">
+                {#if image}
+                    <img src={image} /><br />
+                {/if}
+            </div>
+        {/if}
     </div>
 </main>
 

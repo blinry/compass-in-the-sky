@@ -1,13 +1,66 @@
 <script>
     import {onMount} from "svelte"
+    import SunCalc from "./suncalc.js"
+    import {calcAzimuth, timezoneDiff} from "./sun.js"
 
-    export let markers = []
+    export let latitude
+    export let longitude
+    export let date
+    export let timezoneString
+    export let level
+
     export let northAngle = 0
-    export let sunAngle = 0
     export let showHints = true
     export let showDirections = true
     export let showSun = true
     export let interactive = true
+
+    let sunAngle
+    $: {
+        let pos = SunCalc.getPosition(date, latitude, longitude)
+        sunAngle = pos.azimuth + Math.PI
+    }
+
+    let markers
+    $: {
+        markers = []
+
+        markers.push({label: "N", size: 1, radius: 1, azimuth: 0})
+        if (level >= 4 || level <= 2) {
+            markers.push({label: "E", size: 1, radius: 1, azimuth: Math.PI / 2})
+            markers.push({label: "S", size: 1, radius: 1, azimuth: Math.PI})
+            markers.push({
+                label: "W",
+                size: 1,
+                radius: 1,
+                azimuth: (Math.PI * 3) / 2,
+            })
+        }
+
+        let times = SunCalc.getTimes(date, latitude, longitude)
+        console.log(times)
+        let sunriseHour = times.sunrise.getHours()
+        let sunsetHour = times.sunset.getHours()
+
+        if (sunriseHour > sunsetHour) {
+            sunsetHour += 24
+        }
+
+        let month = date.getMonth() + 1
+
+        let diff = timezoneDiff(timezoneString)
+
+        for (let hour2 = sunriseHour; hour2 <= sunsetHour; hour2 += 1) {
+            markers.push({
+                label: "" + (Math.round(hour2 - diff) % 24),
+                azimuth: calcAzimuth(date, latitude, longitude, month, hour2),
+                size: 0.4,
+                radius: 0.8,
+            })
+        }
+
+        //markers.forEach((m) => (m.azimuth += offsetAzimuth))
+    }
 
     var pt, svg
     onMount(async () => {
