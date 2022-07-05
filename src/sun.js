@@ -37,3 +37,36 @@ export function timezoneDiff(ianatz) {
     // and the diff is 5 hours
     return (date.getTime() - invdate.getTime()) / 60 / 60 / 1000
 }
+
+export async function newQuiz(lat, lng) {
+    let size = 0.01
+    let lat1 = Number(lat - size).toFixed(3)
+    let lng1 = Number(lng - size).toFixed(3)
+    let lat2 = Number(lat + size).toFixed(3)
+    let lng2 = Number(lng + size).toFixed(3)
+
+    let response = await fetch(
+        `https://graph.mapillary.com/images?access_token=MLY|7569500839758282|7b3b3eced40c887cc2867488d6a50220&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url&bbox=${lng1},${lat1},${lng2},${lat2}&limit=1`,
+    )
+    let json = response.json()
+
+    let entry = json.data[0]
+
+    let quiz = {}
+
+    quiz.date = new Date(parseInt(entry["captured_at"]))
+    quiz.lat = entry["computed_geometry"]["coordinates"][1]
+    quiz.lng = entry["computed_geometry"]["coordinates"][0]
+
+    quiz.image = entry["thumb_1024_url"]
+    quiz.northAngle = (-entry["computed_compass_angle"] / 360.0) * 2 * Math.PI
+
+    //date = new Date()
+    //date.toLocaleString("en-US", {timeZone: timezoneString})
+    //date.setHours(Math.floor(hour), (hour % 1) * 60, 0)
+    //date.setMonth(month - 1)
+
+    quiz.sunAngle = SunCalc.getPosition(date, lat, lng).azimuth
+
+    return quiz
+}

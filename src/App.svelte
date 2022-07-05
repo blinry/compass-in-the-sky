@@ -4,6 +4,7 @@
     import CheatSheet from "./CheatSheet.svelte"
     import SunCalc from "./suncalc.js"
     import findTZ from "tz-lookup"
+    import {newQuiz} from "./sun.js"
 
     // 0: overview
     // 1: guess sun direction
@@ -58,7 +59,6 @@
         "December",
     ]
 
-    let image
     let yourSunAngle = 0,
         yourNorthAngle = 0
 
@@ -73,59 +73,29 @@
 
     $: timezoneString = findTZ(lat, lng)
 
-    let pos
+    let quiz
 
     let date
-    $: {
-        date = new Date()
-        date.toLocaleString("en-US", {timeZone: timezoneString})
-        date.setHours(Math.floor(hour), (hour % 1) * 60, 0)
-        date.setMonth(month - 1)
-        pos = SunCalc.getPosition(date, lat, lng)
-    }
+    //$: {
+    //    date = new Date()
+    //    date.toLocaleString("en-US", {timeZone: timezoneString})
+    //    date.setHours(Math.floor(hour), (hour % 1) * 60, 0)
+    //    date.setMonth(month - 1)
+    //    pos = SunCalc.getPosition(date, lat, lng)
+    //}
 
-    let northAngle = 0,
+    /*let northAngle = 0,
         sunAngle = 0
     $: {
-        sunAngle = northAngle + pos.azimuth + Math.PI
-    }
+        sunAngle = northAngle + quiz.sunAngle + Math.PI
+    }*/
 
     function startQuiz() {
         bonus = undefined
-        let size = 0.01
-        let lat1 = Number(lat - size).toFixed(3)
-        let lng1 = Number(lng - size).toFixed(3)
-        let lat2 = Number(lat + size).toFixed(3)
-        let lng2 = Number(lng + size).toFixed(3)
-        image = undefined
         quizInProgress = true
         showYourCompass = true
-        northAngle = 0
-        sunAngle = 0
-        fetch(
-            `https://graph.mapillary.com/images?access_token=MLY|7569500839758282|7b3b3eced40c887cc2867488d6a50220&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url&bbox=${lng1},${lat1},${lng2},${lat2}&limit=1`,
-        )
-            .then((response) => response.json())
-            .then((json) => {
-                let entry = json.data[0]
 
-                let timestamp = parseInt(entry["captured_at"])
-                let date = new Date(timestamp)
-                month = date.getMonth() + 1
-                hour = date.getHours()
-                lat = entry["computed_geometry"]["coordinates"][1]
-                lng = entry["computed_geometry"]["coordinates"][0]
-
-                image = entry["thumb_1024_url"]
-                northAngle =
-                    (-entry["computed_compass_angle"] / 360.0) * 2 * Math.PI
-
-                date = new Date()
-                date.toLocaleString("en-US", {timeZone: timezoneString})
-                date.setHours(Math.floor(hour), (hour % 1) * 60, 0)
-                date.setMonth(month - 1)
-                pos = SunCalc.getPosition(date, lat, lng)
-            })
+        quiz = newQuiz(lat, lng)
     }
 
     function solve() {
@@ -188,26 +158,9 @@
             <div id="controls">
                 {#if showYourCompass}
                     {#if level >= 2}
-                        <input
-                            type="range"
-                            bind:value={hour}
-                            min="0"
-                            max="24"
-                            step="0.01666"
-                            disabled={quizInProgress}
-                        />
-                        <span class="big">{Math.round(hour)}:00</span>
-                        <br />
-                        <input
-                            type="range"
-                            bind:value={month}
-                            min="1"
-                            max="12"
-                            step="1"
-                            disabled={quizInProgress}
-                        />
-                        <span class="big">{monthNames[month - 1]}</span>
-                        <br />
+                        <div class="big">
+                            {Math.round(hour)}:00, {monthNames[month - 1]}
+                        </div>
                     {/if}
                 {/if}
                 <div id="compass">
@@ -257,8 +210,8 @@
                 {/if}
             </div>
             <div id="photo">
-                {#if image}
-                    <img src={image} /><br />
+                {#if quiz?.image}
+                    <img src={quiz.image} /><br />
                 {/if}
             </div>
         {/if}
