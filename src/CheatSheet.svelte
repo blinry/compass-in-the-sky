@@ -12,7 +12,16 @@
 
     //$: date = changeTimezone(date, timezoneString)
 
-    $: console.log(date)
+    let dates = []
+    $: {
+        dates = []
+        for (let i = 0; i < 12; i++) {
+            let newDate = new Date(date)
+            newDate.setMonth(i)
+            newDate.setDate(1)
+            dates.push(newDate)
+        }
+    }
 
     let hour = 12
     let month = 6
@@ -55,13 +64,21 @@
     <input type="range" bind:value={month} min="0" max="12" step="0.01" />
     {month}
 
-    <Compass
-        {date}
-        {timezoneString}
-        {latitude}
-        {longitude}
-        interactive={false}
-    />
+    <div id="grid">
+        {#each dates as date}
+            <div>
+                <Compass
+                    {date}
+                    {timezoneString}
+                    {latitude}
+                    {longitude}
+                    interactive={false}
+                    showSun={false}
+                />
+                <div>{date.toISOString().split("T")[0]}</div>
+            </div>
+        {/each}
+    </div>
 </div>
 
 <style>
