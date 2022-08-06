@@ -2,6 +2,7 @@
     import {onMount} from "svelte"
     import Compass from "./Compass.svelte"
     import Map from "./Map.svelte"
+    import Space from "./Space.svelte"
     import CheatSheet from "./CheatSheet.svelte"
     import SunCalc from "./suncalc.js"
     import findTZ from "tz-lookup"
@@ -157,6 +158,7 @@
     </div>
     <div id="content">
         <div id="intro">
+            <Space />
             <p>Imagine you're lost in the woods.</p>
             <img src="forest.jpg" />
             <p>

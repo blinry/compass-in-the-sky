@@ -20,6 +20,8 @@
   "dependencies": {
     "geo-tz": "^7.0.1",
     "sirv-cli": "^2.0.0",
+    "spacekit.js": "^0.1.0",
+    "three": "^0.143.0",
     "tz-lookup": "^6.1.25"
   }
 }
