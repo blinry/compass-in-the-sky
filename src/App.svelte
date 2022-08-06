@@ -1,6 +1,7 @@
 <script>
     import {onMount} from "svelte"
     import Compass from "./Compass.svelte"
+    import Map from "./Map.svelte"
     import CheatSheet from "./CheatSheet.svelte"
     import SunCalc from "./suncalc.js"
     import findTZ from "tz-lookup"
@@ -67,22 +68,22 @@
     let showYourCompass = false
     reset()
 
-    let lat = 0
-    let lng = 0
+    let latitude = 0
+    let longitude = 0
     let timezoneString = "UTC"
 
-    $: timezoneString = findTZ(lat, lng)
+    $: timezoneString = findTZ(latitude, longitude)
 
     let quiz
 
     let date
-    //$: {
-    //    date = new Date()
-    //    date.toLocaleString("en-US", {timeZone: timezoneString})
-    //    date.setHours(Math.floor(hour), (hour % 1) * 60, 0)
-    //    date.setMonth(month - 1)
-    //    pos = SunCalc.getPosition(date, lat, lng)
-    //}
+    $: {
+        date = new Date()
+        //date.toLocaleString("en-US", {timeZone: timezoneString})
+        date.setHours(Math.floor(hour), (hour % 1) * 60, 0)
+        date.setMonth(month - 1)
+        //pos = SunCalc.getPosition(date, latitude, longitude)
+    }
 
     /*let northAngle = 0,
         sunAngle = 0
@@ -95,7 +96,7 @@
         quizInProgress = true
         showYourCompass = true
 
-        quiz = newQuiz(lat, lng)
+        quiz = newQuiz(latitude, longitude)
     }
 
     function solve() {
@@ -124,16 +125,19 @@
         quizInProgress = false
     }
 
+    function findPosition() {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            latitude = position.coords.latitude
+            longitude = position.coords.longitude
+            startQuiz()
+        })
+    }
+
     onMount(async () => {
         window.addEventListener("contextmenu", function (e) {
             e.preventDefault()
         })
-
-        navigator.geolocation.getCurrentPosition(function (position) {
-            lat = position.coords.latitude
-            lng = position.coords.longitude
-            startQuiz()
-        })
+        findPosition()
     })
 </script>
 
@@ -152,6 +156,90 @@
         <div>{levels[level].description}</div>
     </div>
     <div id="content">
+        <div id="intro">
+            <p>Imagine you're lost in the woods.</p>
+            <img src="forest.jpg" />
+            <p>
+                You know that to the North is a big city, but which direction is
+                that? You'd look it up on your phone, but you threw it away
+                earlier to distract a bear!
+            </p>
+            <p>
+                This site will teach you how to find North using the sun. Even
+                if you have a map, it's a useful skill to give you a better
+                intuition for how to get where you want to go!
+            </p>
+            <h2>Preparation: Set your position</h2>
+            <p>
+                The sun moves differently over the sky depending on where on the
+                planet you are. Set your rough position by clicking on the map,
+                or use the "find my position" button to see whether your browser
+                can give us a good estimation. This doesn't need to be precise.
+            </p>
+            <button on:click={findPosition}>Find my position</button>
+            <Map bind:latitude bind:longitude />
+            <h2>Lesson 1: How does the sun move in {monthNames[month - 1]}?</h2>
+            <p>Try changing the time and see how the sun moves:</p>
+            <p>
+                <input
+                    type="range"
+                    bind:value={hour}
+                    min="0"
+                    max="24"
+                    step="0.01"
+                />
+                <span class="big">
+                    {Math.round(hour)}:00
+                </span>
+            </p>
+            <p>
+                <Compass {date} {latitude} {longitude} />
+            </p>
+            <p>
+                So roughly, the sun is in the East at XX:00, in the South at
+                XX:00, and in the West at XX:00.
+            </p>
+            <p>
+                Depending on the month, this pattern will be a bit different.
+                Try changing the month and observe how that affects the diagram
+                above.
+            </p>
+            <p>
+                <input
+                    type="range"
+                    bind:value={month}
+                    min="1"
+                    max="12"
+                    step="1"
+                />
+                <span class="big">
+                    {monthNames[month - 1]}
+                </span>
+            </p>
+            <p>
+                Here's some things that might be different! Check all boxes that
+                apply:
+            </p>
+            <p>
+                <input type="checkbox" />
+                There might be fewer hours where the sun is visible in the winter
+            </p>
+            <p>
+                <input type="checkbox" />
+                The angles which the sun can reach might be more spread out in summer
+            </p>
+            <p>
+                <input type="checkbox" />
+                Depending on your location, the sun might even be in the North in
+                some months, and in the South in others.
+            </p>
+            <p>
+                <input type="checkbox" />
+                If your country has daylight savings time, the hours might be shifted
+                a bit when daylight savings time is active.
+            </p>
+        </div>
+        <!--
         {#if level == 0}
             <CheatSheet />
         {:else}
@@ -168,8 +256,8 @@
                         <div class={quizInProgress ? "" : "transparent"}>
                             <Compass
                                 {date}
-                                latitude={lat}
-                                longitude={lng}
+                                latitude={latitude}
+                                longitude={longitude}
                                 {level}
                                 bind:northAngle={yourNorthAngle}
                                 bind:sunAngle={yourSunAngle}
@@ -183,8 +271,8 @@
                         <div>
                             <Compass
                                 {date}
-                                latitude={lat}
-                                longitude={lng}
+                                latitude={latitude}
+                                longitude={longitude}
                                 {level}
                                 {northAngle}
                                 {sunAngle}
@@ -215,6 +303,7 @@
                 {/if}
             </div>
         {/if}
+        -->
     </div>
 </main>
 
@@ -236,7 +325,24 @@
     }
     #content {
         display: flex;
+        flex-direction: column;
         flex-grow: 1;
+    }
+    #intro {
+        padding: 1rem;
+        font-size: 1.2rem;
+        line-height: 170%;
+    }
+    h2 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+    p,
+    img {
+        margin-bottom: 1rem;
+    }
+    ul {
+        margin-left: 1rem;
     }
     #controls {
         padding: 1rem;
@@ -259,8 +365,8 @@
         width: 18rem;
     }
     img {
-        max-width: 100%;
-        max-height: 100%;
+        max-width: 50%;
+        max-height: 50%;
     }
     .big {
         font-size: 150%;
