@@ -5,8 +5,8 @@
     import {changeTimezone} from "./sun.js"
 
     let date = new Date()
-    let latitude = 52
-    let longitude = 10
+    export let latitude = 52
+    export let longitude = 10
 
     $: timezoneString = findTZ(latitude, longitude)
 
@@ -37,27 +37,6 @@
 </script>
 
 <div>
-    <input
-        type="range"
-        bind:value={latitude}
-        min="-90"
-        max="90"
-        step="0.01666"
-    />
-    {latitude}
-    <br />
-    <input
-        type="range"
-        bind:value={longitude}
-        min="-180"
-        max="180"
-        step="0.01666"
-    />
-    {longitude}
-    <br />
-    {timezoneString}<br />
-    <Map bind:latitude bind:longitude {date} />
-
     <input type="range" bind:value={hour} min="0" max="24" step="0.01" />
     {hour}<br />
 

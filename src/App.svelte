@@ -162,13 +162,12 @@
     </div>
     <div id="content">
         <div id="intro">
-            <Space {latitude} {longitude} />
+            <h1>Learn how to find North using the sun!</h1>
             <p>Imagine you're lost in the woods.</p>
             <img src="forest.jpg" />
             <p>
                 You know that to the North is a big city, but which direction is
-                that? You'd look it up on your phone, but you threw it away
-                earlier to distract a bear!
+                that?
             </p>
             <p>
                 This site will teach you how to find North using the sun. Even
@@ -184,7 +183,21 @@
             </p>
             <button on:click={findPosition}>Find my position</button>
             <Map bind:latitude bind:longitude />
+
+            <h2>Lesson 0: How do Earth and Sun move?</h2>
+
+            <p>
+                The earth rotates around itself every 24 hours. In addition, the
+                earth is orbiting the sun every year. Because the earth's axis
+                is slightly tilted, the sun falls on your location from
+                different directions depending on the time of day and the month
+                of the year.
+            </p>
+
+            <Space {latitude} {longitude} />
+
             <h2>Lesson 1: How does the sun move in {monthNames[month - 1]}?</h2>
+
             <p>Try changing the time and see how the sun moves:</p>
             <p>
                 <input
@@ -244,10 +257,11 @@
                 If your country has daylight savings time, the hours might be shifted
                 a bit when daylight savings time is active.
             </p>
+            <h2>Overview of sun direction for all months</h2>
+            <CheatSheet {latitude} {longitude} />
         </div>
         <!--
         {#if level == 0}
-            <CheatSheet />
         {:else}
             <div id="controls">
                 {#if showYourCompass}
@@ -339,6 +353,7 @@
         font-size: 1.2rem;
         line-height: 170%;
     }
+    h1,
     h2 {
         margin-top: 2rem;
         margin-bottom: 1rem;
