@@ -73,7 +73,11 @@
     let longitude = 0
     let timezoneString = "UTC"
 
-    $: timezoneString = findTZ(latitude, longitude)
+    $: {
+        if (latitude < 90 && latitude > -90) {
+            timezoneString = findTZ(latitude, longitude)
+        }
+    }
 
     let quiz
 
@@ -158,7 +162,7 @@
     </div>
     <div id="content">
         <div id="intro">
-            <Space />
+            <Space {latitude} {longitude} />
             <p>Imagine you're lost in the woods.</p>
             <img src="forest.jpg" />
             <p>
