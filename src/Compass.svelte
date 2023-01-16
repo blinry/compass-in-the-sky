@@ -6,19 +6,25 @@
     export let latitude
     export let longitude
     export let date
-    export let timezoneString
-    export let level
+
+    export let timezoneString = "Europe/Berlin"
+    export let level = 5
 
     export let northAngle = 0
     export let showHints = true
     export let showDirections = true
     export let showSun = true
-    export let interactive = true
+    export let sunInteractive = true
+    export let northInteractive = true
 
-    let sunAngle
+    export let resetSun = false
+
+    let sunAngle = 0
     $: {
-        let pos = SunCalc.getPosition(date, latitude, longitude)
-        sunAngle = pos.azimuth + Math.PI
+        if (!resetSun) {
+            let pos = SunCalc.getPosition(date, latitude, longitude)
+            sunAngle = pos.azimuth + Math.PI + northAngle
+        }
     }
 
     let markers
@@ -92,16 +98,18 @@
     let movingSun = false
     let movingCompass = false
     function handleMousedown(event) {
-        if (interactive) {
-            if (event.touches) {
-                event.clientX = event.touches[0].pageX
-                event.clientY = event.touches[0].pageY
-            }
-            let loc = cursorPoint(event)
-            let d = Math.sqrt(loc.x ** 2 + loc.y ** 2)
-            if (d < 0.35) {
+        if (event.touches) {
+            event.clientX = event.touches[0].pageX
+            event.clientY = event.touches[0].pageY
+        }
+        let loc = cursorPoint(event)
+        let d = Math.sqrt(loc.x ** 2 + loc.y ** 2)
+        if (d < 0.35) {
+            if (sunInteractive) {
                 movingSun = true
-            } else {
+            }
+        } else {
+            if (northInteractive) {
                 movingCompass = true
             }
         }
@@ -167,7 +175,7 @@
                         y={0.4 *
                             marker.radius *
                             Math.sin(
-                                marker.azimuth + northAngle - Math.PI / 2,
+                                marker.azimuth + northAngle - Math.PI / 2
                             ) +
                             0.03}>{marker.label}</tspan
                     >
@@ -203,7 +211,13 @@
 
 <style>
     svg {
-        width: 20rem;
+        width: 25rem;
         touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+    }
+    div {
+        display: inline-block;
     }
 </style>

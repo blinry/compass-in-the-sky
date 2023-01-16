@@ -14,7 +14,7 @@ export function changeTimezone(date, ianatz) {
     var invdate = new Date(
         date.toLocaleString("en-US", {
             timeZone: ianatz,
-        }),
+        })
     )
 
     // then invdate will be 07:00 in Toronto
@@ -30,7 +30,7 @@ export function timezoneDiff(ianatz) {
     var invdate = new Date(
         date.toLocaleString("en-US", {
             timeZone: ianatz,
-        }),
+        })
     )
 
     // then invdate will be 07:00 in Toronto
@@ -39,7 +39,7 @@ export function timezoneDiff(ianatz) {
 }
 
 export async function newQuiz(lat, lng) {
-    let size = 0.01
+    let size = 0.1 * (Math.random() + 1)
     let lat1 = Number(lat - size).toFixed(3)
     let lng1 = Number(lng - size).toFixed(3)
     let lat2 = Number(lat + size).toFixed(3)
@@ -48,9 +48,9 @@ export async function newQuiz(lat, lng) {
     console.log(lat1)
 
     let response = await fetch(
-        `https://graph.mapillary.com/images?access_token=MLY|7569500839758282|7b3b3eced40c887cc2867488d6a50220&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url&bbox=${lng1},${lat1},${lng2},${lat2}&limit=1`,
+        `https://graph.mapillary.com/images?access_token=MLY|7569500839758282|7b3b3eced40c887cc2867488d6a50220&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url&bbox=${lng1},${lat1},${lng2},${lat2}&limit=1`
     )
-    let json = response.json()
+    let json = await response.json()
 
     console.log(json)
 
@@ -64,6 +64,7 @@ export async function newQuiz(lat, lng) {
 
     quiz.image = entry["thumb_1024_url"]
     quiz.northAngle = (-entry["computed_compass_angle"] / 360.0) * 2 * Math.PI
+    quiz.otherNorthAngle = (-entry["compass_angle"] / 360.0) * 2 * Math.PI
 
     //date = new Date()
     //date.toLocaleString("en-US", {timeZone: timezoneString})
