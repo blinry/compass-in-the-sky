@@ -204,5 +204,6 @@
 <style>
     svg {
         width: 20rem;
+        touch-action: none;
     }
 </style>

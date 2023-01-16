@@ -45,10 +45,14 @@ export async function newQuiz(lat, lng) {
     let lat2 = Number(lat + size).toFixed(3)
     let lng2 = Number(lng + size).toFixed(3)
 
+    console.log(lat1)
+
     let response = await fetch(
         `https://graph.mapillary.com/images?access_token=MLY|7569500839758282|7b3b3eced40c887cc2867488d6a50220&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url&bbox=${lng1},${lat1},${lng2},${lat2}&limit=1`,
     )
     let json = response.json()
+
+    console.log(json)
 
     let entry = json.data[0]
 
@@ -66,7 +70,24 @@ export async function newQuiz(lat, lng) {
     //date.setHours(Math.floor(hour), (hour % 1) * 60, 0)
     //date.setMonth(month - 1)
 
-    quiz.sunAngle = SunCalc.getPosition(date, lat, lng).azimuth
+    quiz.sunAngle = SunCalc.getPosition(quiz.date, lat, lng).azimuth
+
+    console.log(quiz)
 
     return quiz
 }
+
+export const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+]

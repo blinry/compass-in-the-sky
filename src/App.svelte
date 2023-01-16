@@ -1,12 +1,11 @@
 <script>
     import {onMount} from "svelte"
+    import Quiz from "./Quiz.svelte"
     import Compass from "./Compass.svelte"
     import Map from "./Map.svelte"
     import Space from "./Space.svelte"
     import CheatSheet from "./CheatSheet.svelte"
-    import SunCalc from "./suncalc.js"
-    import findTZ from "tz-lookup"
-    import {newQuiz} from "./sun.js"
+    import {monthNames} from "./sun.js"
 
     // 0: overview
     // 1: guess sun direction
@@ -14,7 +13,18 @@
     // 3: press arrow keys to specify direction
     let level = 0
     let points = 0
-    let bonus = undefined
+
+    let hour = 12
+    let month = 7
+
+    let date
+    $: {
+        date = new Date()
+        //date.toLocaleString("en-US", {timeZone: timezoneString})
+        date.setHours(Math.floor(hour), (hour % 1) * 60, 0)
+        date.setMonth(month - 1)
+        //pos = SunCalc.getPosition(date, latitude, longitude)
+    }
 
     let levels = {
         0: {
@@ -46,95 +56,14 @@
         },
     }
 
-    const monthNames = [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-    ]
-
-    let yourSunAngle = 0,
-        yourNorthAngle = 0
-
-    let hour, month
-    let quizInProgress = false
-    let showYourCompass = false
-    reset()
-
     let latitude = 0
     let longitude = 0
-    let timezoneString = "UTC"
-
-    $: {
-        if (latitude < 90 && latitude > -90) {
-            timezoneString = findTZ(latitude, longitude)
-        }
-    }
-
-    let quiz
-
-    let date
-    $: {
-        date = new Date()
-        //date.toLocaleString("en-US", {timeZone: timezoneString})
-        date.setHours(Math.floor(hour), (hour % 1) * 60, 0)
-        date.setMonth(month - 1)
-        //pos = SunCalc.getPosition(date, latitude, longitude)
-    }
-
-    /*let northAngle = 0,
-        sunAngle = 0
-    $: {
-        sunAngle = northAngle + quiz.sunAngle + Math.PI
-    }*/
-
-    function startQuiz() {
-        bonus = undefined
-        quizInProgress = true
-        showYourCompass = true
-
-        quiz = newQuiz(latitude, longitude)
-    }
-
-    function solve() {
-        quizInProgress = false
-        let angleDiff
-        if (level == 1) {
-            angleDiff = yourSunAngle - sunAngle
-        } else {
-            angleDiff = yourNorthAngle - northAngle
-        }
-        angleDiff = Math.abs(((angleDiff + Math.PI) % (2 * Math.PI)) - Math.PI)
-        bonus = 10 * Math.max(0, -2 * (angleDiff / Math.PI) + 1)
-        bonus = Math.round(bonus)
-        points += bonus
-    }
-
-    function nextLevel() {
-        level += 1
-        startQuiz()
-    }
-
-    function reset() {
-        let date = new Date()
-        hour = date.getHours()
-        month = date.getMonth() + 1
-        quizInProgress = false
-    }
 
     function findPosition() {
         navigator.geolocation.getCurrentPosition(function (position) {
             latitude = position.coords.latitude
             longitude = position.coords.longitude
-            startQuiz()
+            //startQuiz()
         })
     }
 
@@ -164,7 +93,7 @@
         <div id="intro">
             <h1>Learn how to find North using the sun!</h1>
             <p>Imagine you're lost in the woods.</p>
-            <img src="forest.jpg" />
+            <img src="forest.jpg" alt="A sun-flooded forest" />
             <p>
                 You know that to the North is a big city, but which direction is
                 that?
@@ -259,71 +188,9 @@
             </p>
             <h2>Overview of sun direction for all months</h2>
             <CheatSheet {latitude} {longitude} />
+            <h2>Quiz</h2>
+            <Quiz {latitude} {longitude} {level} {hour} {month} {date} />
         </div>
-        <!--
-        {#if level == 0}
-        {:else}
-            <div id="controls">
-                {#if showYourCompass}
-                    {#if level >= 2}
-                        <div class="big">
-                            {Math.round(hour)}:00, {monthNames[month - 1]}
-                        </div>
-                    {/if}
-                {/if}
-                <div id="compass">
-                    {#if showYourCompass}
-                        <div class={quizInProgress ? "" : "transparent"}>
-                            <Compass
-                                {date}
-                                latitude={latitude}
-                                longitude={longitude}
-                                {level}
-                                bind:northAngle={yourNorthAngle}
-                                bind:sunAngle={yourSunAngle}
-                                showHints={false}
-                                showDirections={level >= 2}
-                                showSun={level <= 2}
-                            />
-                        </div>
-                    {/if}
-                    {#if !quizInProgress && showYourCompass}
-                        <div>
-                            <Compass
-                                {date}
-                                latitude={latitude}
-                                longitude={longitude}
-                                {level}
-                                {northAngle}
-                                {sunAngle}
-                                showHints={level >= 2}
-                                showDirections={level >= 2}
-                                interactive={false}
-                            />
-                        </div>
-                    {/if}
-                </div>
-                {#if quizInProgress}
-                    <button on:click={solve}>Show solution</button>
-                    <button on:click={startQuiz}>Give me another photo</button>
-                {:else}
-                    <button on:click={startQuiz}>New quiz!</button>
-                {/if}
-                {#if bonus !== undefined}
-                    <div>You got {bonus} points!</div>
-                {/if}
-                {#if points >= levels[level + 1].requiredPoints}
-                    <div>You have unlocked the next level!</div>
-                    <button on:click={nextLevel}>Next level</button>
-                {/if}
-            </div>
-            <div id="photo">
-                {#if quiz?.image}
-                    <img src={quiz.image} /><br />
-                {/if}
-            </div>
-        {/if}
-        -->
     </div>
 </main>
 
@@ -362,26 +229,6 @@
     img {
         margin-bottom: 1rem;
     }
-    ul {
-        margin-left: 1rem;
-    }
-    #controls {
-        padding: 1rem;
-        width: 20rem;
-    }
-    #photo {
-        background: lightblue;
-        flex-grow: 1;
-    }
-    #compass {
-        height: 20rem;
-        position: relative;
-    }
-    #compass div {
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
     input[type="range"] {
         width: 18rem;
     }
@@ -391,12 +238,6 @@
     }
     .big {
         font-size: 150%;
-    }
-    svg {
-        touch-action: none;
-    }
-    .transparent {
-        opacity: 10%;
     }
     * {
         user-select: none;
