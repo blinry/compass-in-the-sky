@@ -219,5 +219,8 @@
     }
     div {
         display: inline-block;
+        /*background-color: white;
+        opacity: 0.5;*/
+        transform: rotateX(60deg);
     }
 </style>

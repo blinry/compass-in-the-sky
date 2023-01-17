@@ -58,8 +58,6 @@
     </div>
     <div id="sliders">
         <TimePicker bind:date />
-        date: {date}
-        na: {northAngle}
     </div>
     <div
         id="big"
@@ -127,7 +125,6 @@
         background-color: green;
     }
     #compass {
-        transform: rotateX(60deg);
         /* position bottom center of parent */
         position: absolute;
         bottom: 0;
