@@ -4,6 +4,7 @@
     import TimePicker from "./TimePicker.svelte"
     import Map from "./Map.svelte"
     import Space from "./Space.svelte"
+    import CheatSheet from "./CheatSheet.svelte"
     import {newQuiz} from "./sun.js"
 
     let chapters = [
@@ -12,10 +13,11 @@
         "3d",
         "time",
         "date",
+        "cheatsheet",
         "quiz1",
         "quiz2",
     ]
-    let chapter = chapters[6]
+    let chapter = chapters[5]
 
     let date = new Date()
 
@@ -166,6 +168,11 @@
                 notice a sudden jump when daylight savings time starts and ends.
                 Try to find it!
             </p>
+        {:else if chapter === "cheatsheet"}
+            <p>
+                To keep things simple, focus on this cheat sheet, which shows
+                three diagrams.
+            </p>
         {:else if chapter === "quiz1" || chapter === "quiz2"}
             <button on:click={() => myNewQuiz()}>New (Space)</button>
             {#if chapter !== "quiz2"}
@@ -182,8 +189,11 @@
         {/if}
     </div>
     <div id="sliders">
-        {#if chapter == "time" || chapter == "date" || chapter === "quiz1" || chapter === "quiz2"}
-            <TimePicker bind:date hideYear={chapter == "time"} />
+        {#if chapter == "time" || chapter == "date" || chapter == "cheatsheet" || chapter === "quiz1" || chapter === "quiz2"}
+            <TimePicker
+                bind:date
+                hideYear={chapter == "time" || chapter == "cheatsheet"}
+            />
         {/if}
         {latitude.toFixed(2)}
         {longitude.toFixed(2)}
@@ -199,6 +209,8 @@
             <Space {latitude} {longitude} />
         {:else if chapter == "time" || chapter === "date"}
             <Compass {latitude} {longitude} {date} tilt="0" />
+        {:else if chapter == "cheatsheet"}
+            <CheatSheet {latitude} {longitude} {date} />
         {:else if chapter == "quiz1" || chapter === "quiz2"}
             <img
                 src={quiz?.image}

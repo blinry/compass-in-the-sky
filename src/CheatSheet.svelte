@@ -1,12 +1,11 @@
 <script>
     import Compass from "./Compass.svelte"
-    import Map from "./Map.svelte"
     import findTZ from "tz-lookup"
-    import {changeTimezone} from "./sun.js"
+    //import {changeTimezone} from "./sun.js"
 
-    let date = new Date()
-    export let latitude = 52
-    export let longitude = 10
+    export let date = new Date()
+    export let latitude = 0
+    export let longitude = 0
 
     $: timezoneString = findTZ(latitude, longitude)
 
@@ -15,36 +14,44 @@
     let dates = []
     $: {
         dates = []
-        for (let i = 0; i < 12; i++) {
+        for (let i = 5; i < 12; i += 3) {
             let newDate = new Date(date)
+            let hour = date.getHours() + date.getMinutes() / 60
             newDate.setMonth(i)
-            newDate.setDate(1)
-            dates.push(newDate)
+            newDate.setDate(21)
+            newDate.setHours(Math.floor(hour))
+            newDate.setMinutes((hour % 1) * 60)
+
+            let description = "?"
+            if (i == 5) {
+                description = "June"
+            } else if (i == 8) {
+                description = "April / September"
+            } else if (i == 11) {
+                description = "December"
+            }
+
+            dates.push({date: newDate, description: description})
         }
+        dates = dates
     }
 
-    let hour = 12
-    let month = 6
+    //let hour = 12
+    //let month = 6
 
-    $: {
-        date.setMonth(month)
-        date.setDate((month % 1) * 30)
-        date.setHours(Math.floor(hour))
-        date.setMinutes((hour % 1) * 60)
-        //date = changeTimezone(date, timezoneString)
-        date = date
-    }
+    /* $: { */
+    /*     for (let date2 of dates) { */
+    /*         let hour = date.getHours() + date.getMinutes() / 60 */
+    /*         date2.setHours(Math.floor(hour)) */
+    /*         date2.setMinutes((hour % 1) * 60) */
+    /*         date2 = date2 */
+    /*     } */
+    /* } */
 </script>
 
 <div>
-    <input type="range" bind:value={hour} min="0" max="24" step="0.01" />
-    {hour}<br />
-
-    <input type="range" bind:value={month} min="0" max="12" step="0.01" />
-    {month}
-
     <div id="grid">
-        {#each dates as date}
+        {#each dates as { date, description }}
             <div>
                 <Compass
                     {date}
@@ -52,9 +59,9 @@
                     {latitude}
                     {longitude}
                     interactive={false}
-                    showSun={false}
+                    showSun={true}
                 />
-                <div>{date.toISOString().split("T")[0]}</div>
+                <div>{description}</div>
             </div>
         {/each}
     </div>
