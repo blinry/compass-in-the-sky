@@ -21,7 +21,8 @@
 
     export let resetSun = false
 
-    let sunAngle = 0
+    export let sunAngle = 0
+
     $: {
         if (!resetSun) {
             let pos = SunCalc.getPosition(date, latitude, longitude)

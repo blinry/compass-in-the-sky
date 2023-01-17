@@ -14,10 +14,11 @@
         "time",
         "date",
         "cheatsheet",
+        "quiz0",
         "quiz1",
         "quiz2",
     ]
-    let chapter = chapters[5]
+    let chapter = chapters[7]
 
     let date = new Date()
 
@@ -27,13 +28,14 @@
     let northAngle = 0
 
     let myNorthAngle = 0
+    let mySunAngle = 0
     let direction = "N"
 
     let quiz
     let showSolution = false
 
     $: {
-        if (chapter == "quiz1" || chapter == "quiz2") {
+        if (chapter == "quiz0" || chapter == "quiz1" || chapter == "quiz2") {
             if (typeof quiz == "undefined") {
                 myNewQuiz()
             }
@@ -73,7 +75,7 @@
         console.log(quiz)
         date = quiz.date
         northAngle = quiz.northAngle
-        //sunAngle = northAngle + quiz.sunAngle + Math.PI
+        mySunAngle = northAngle + quiz.sunAngle + Math.PI
         //mySunAngle = 0
 
         const directions = ["N", "E", "S", "W"]
@@ -84,10 +86,40 @@
     function keyDown(e) {
         console.log(e.key)
         if (e.key == " ") {
-            if (chapter == "quiz1" || chapter == "quiz2") {
+            if (
+                chapter == "quiz0" ||
+                chapter == "quiz1" ||
+                chapter == "quiz2"
+            ) {
                 e.preventDefault()
                 myNewQuiz()
                 return
+            }
+        }
+
+        if (chapter === "quiz0") {
+            const directions = {
+                ArrowUp: 0,
+                ArrowRight: Math.PI / 2,
+                ArrowDown: Math.PI,
+                ArrowLeft: (3 * Math.PI) / 2,
+            }
+            if (typeof directions[e.key] !== "undefined") {
+                mySunAngle = directions[e.key]
+                showSolution = true
+            }
+        }
+
+        if (chapter === "quiz1") {
+            const directions = {
+                ArrowUp: 0,
+                ArrowRight: Math.PI / 2,
+                ArrowDown: Math.PI,
+                ArrowLeft: (3 * Math.PI) / 2,
+            }
+            if (typeof directions[e.key] !== "undefined") {
+                myNorthAngle = directions[e.key]
+                showSolution = true
             }
         }
 
@@ -190,13 +222,30 @@
                 To keep things simple, focus on this cheat sheet, which shows
                 three diagrams.
             </p>
-        {:else if chapter === "quiz1" || chapter === "quiz2"}
+        {:else if chapter === "quiz0"}
             <p>
-                Now it's time to practice! Look at the photo, and imagine that
-                you're in that location yourself. The sliders at the bottom tell
-                you how late it is, and the time of the year. Your task is to
-                drag align the sun icon with the sun...
+                Now it's time to practice! The first skill that you need is to
+                figure out in which direction the sun is!
             </p>
+            <p>
+                Look at the photo, and then use your arrow keys to guess the
+                direction of the sun.
+            </p>
+            <p>
+                For example, if you think the sun is behind you in the photo,
+                press the down arrow.
+            </p>
+            <p>Sometimes, this can be tricky. Do your best! :D</p>
+        {:else if chapter === "quiz1"}
+            <p>
+                The second skill is to align the compass directions with the
+                sun. In this exercise, we've already set the direction of the
+                sun for you.
+            </p>
+            <p>You your arrow keys to tell us where <b>North</b> is!</p>
+        {:else if chapter === "quiz1"}{/if}
+
+        {#if chapter === "quiz0" || chapter === "quiz1" || chapter === "quiz2"}
             <button on:click={() => myNewQuiz()}>New (Space)</button>
             {#if chapter !== "quiz2"}
                 <button on:click={() => (showSolution = true)}
@@ -212,11 +261,13 @@
         {/if}
     </div>
     <div id="sliders">
-        {#if chapter == "time" || chapter == "date" || chapter == "cheatsheet" || chapter === "quiz1" || chapter === "quiz2"}
+        {#if chapter == "time" || chapter == "date" || chapter == "cheatsheet" || chapter === "quiz0" || chapter === "quiz1" || chapter === "quiz2"}
             <TimePicker
                 bind:date
                 hideYear={chapter == "time" || chapter == "cheatsheet"}
-                disabled={chapter == "quiz1" || chapter == "quiz2"}
+                disabled={chapter == "quiz0" ||
+                    chapter == "quiz1" ||
+                    chapter == "quiz2"}
             />
         {/if}
         {#if chapter != "motivation" && chapter != "setup"}
@@ -240,7 +291,7 @@
             <Compass {latitude} {longitude} {date} tilt="0" />
         {:else if chapter == "cheatsheet"}
             <CheatSheet {latitude} {longitude} {date} />
-        {:else if chapter == "quiz1" || chapter === "quiz2"}
+        {:else if chapter == "quiz0" || chapter == "quiz1" || chapter === "quiz2"}
             <img
                 src={quiz?.image}
                 style="width: 100%; height: 100%; object-fit: cover;"
@@ -251,12 +302,14 @@
                         {latitude}
                         {longitude}
                         {date}
+                        bind:sunAngle={mySunAngle}
                         northAngle={myNorthAngle}
-                        sunInteractive={true}
+                        sunInteractive={chapter == "quiz0"}
                         northInteractive={true}
                         resetSun={true}
                         showHints={false}
                         tilt={60}
+                        showDirections={chapter != "quiz0"}
                     />
                 {/if}
                 {#if showSolution}
@@ -268,6 +321,7 @@
                         sunInteractive={false}
                         northInteractive={false}
                         tilt={60}
+                        showDirections={chapter != "quiz0"}
                     />
                 {/if}
             </div>
