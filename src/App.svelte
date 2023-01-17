@@ -6,8 +6,16 @@
     import Space from "./Space.svelte"
     import {newQuiz} from "./sun.js"
 
-    let chapters = ["motivation", "setup", "3d", "time", "date", "quiz1"]
-    let chapter = chapters[4]
+    let chapters = [
+        "motivation",
+        "setup",
+        "3d",
+        "time",
+        "date",
+        "quiz1",
+        "quiz2",
+    ]
+    let chapter = chapters[6]
 
     let date = new Date()
 
@@ -17,6 +25,7 @@
     let northAngle = 0
 
     let myNorthAngle = 0
+    let direction = "N"
 
     let quiz
     let showSolution = false
@@ -54,13 +63,46 @@
         console.log(quiz)
         date = quiz.date
         northAngle = quiz.northAngle
-        sunAngle = northAngle + quiz.sunAngle + Math.PI
-        mySunAngle = 0
+        //sunAngle = northAngle + quiz.sunAngle + Math.PI
+        //mySunAngle = 0
+
+        const directions = ["N", "E", "S", "W"]
+        direction = directions[Math.floor(Math.random() * directions.length)]
+        console.log(direction)
+    }
+
+    function keyDown(e) {
+        console.log(e.key)
+        if (e.key == " ") {
+            myNewQuiz()
+            return
+        }
+
+        if (chapter === "quiz2") {
+            const directions = {
+                ArrowUp: 0,
+                ArrowRight: Math.PI / 2,
+                ArrowDown: Math.PI,
+                ArrowLeft: (3 * Math.PI) / 2,
+            }
+            if (typeof directions[e.key] !== "undefined") {
+                const offsets = {
+                    N: 0,
+                    W: Math.PI / 2,
+                    S: Math.PI,
+                    E: (3 * Math.PI) / 2,
+                }
+                myNorthAngle = directions[e.key] + offsets[direction]
+                showSolution = true
+            }
+        }
     }
 </script>
 
+<svelte:window on:keydown={keyDown} />
+
 <main>
-    <div id="header">header</div>
+    <div id="header">Sun Compass</div>
     <div id="nav">
         <button on:click={prevChapter}>&lt;</button>
         <span>{chapter}</span>
@@ -124,14 +166,23 @@
                 notice a sudden jump when daylight savings time starts and ends.
                 Try to find it!
             </p>
-        {:else if chapter === "quiz1"}
-            <button on:click={() => myNewQuiz()}>New</button>
-            <button on:click={() => (showSolution = true)}>Show solution</button
-            >
+        {:else if chapter === "quiz1" || chapter === "quiz2"}
+            <button on:click={() => myNewQuiz()}>New (Space)</button>
+            {#if chapter !== "quiz2"}
+                <button on:click={() => (showSolution = true)}
+                    >Show solution</button
+                >
+            {/if}
+
+            {#if chapter == "quiz2"}
+                <p>
+                    Which direction is <b>{direction}</b>? Press an arrow key!
+                </p>
+            {/if}
         {/if}
     </div>
     <div id="sliders">
-        {#if chapter == "time" || chapter == "date" || chapter === "quiz1"}
+        {#if chapter == "time" || chapter == "date" || chapter === "quiz1" || chapter === "quiz2"}
             <TimePicker bind:date hideYear={chapter == "time"} />
         {/if}
         {latitude.toFixed(2)}
@@ -148,22 +199,24 @@
             <Space {latitude} {longitude} />
         {:else if chapter == "time" || chapter === "date"}
             <Compass {latitude} {longitude} {date} tilt="0" />
-        {:else if chapter == "quiz1"}
+        {:else if chapter == "quiz1" || chapter === "quiz2"}
             <img
                 src={quiz?.image}
                 style="width: 100%; height: 100%; object-fit: cover;"
             />
             <div id="compass">
-                <Compass
-                    {latitude}
-                    {longitude}
-                    {date}
-                    {myNorthAngle}
-                    sunInteractive={true}
-                    northInteractive={true}
-                    resetSun={true}
-                    showHints={false}
-                />
+                {#if chapter !== "quiz2" || showSolution}
+                    <Compass
+                        {latitude}
+                        {longitude}
+                        {date}
+                        northAngle={myNorthAngle}
+                        sunInteractive={true}
+                        northInteractive={true}
+                        resetSun={true}
+                        showHints={false}
+                    />
+                {/if}
                 {#if showSolution}
                     <Compass
                         {latitude}
@@ -195,6 +248,8 @@
     #header {
         grid-area: header;
         background-color: red;
+        padding: 0.5rem;
+        font-size: 150%;
     }
     #nav {
         grid-area: nav;
