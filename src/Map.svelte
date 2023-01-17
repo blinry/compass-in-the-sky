@@ -3,6 +3,7 @@
 
     export let latitude = 0
     export let longitude = 0
+    export let disabled = false
 
     //export let date
 
@@ -29,8 +30,10 @@
 
     let mousedown = false
     function handleMousedown(e) {
-        mousedown = true
-        handleMousemove(e)
+        if (!disabled) {
+            mousedown = true
+            handleMousemove(e)
+        }
     }
 
     function handleMouseup(e) {

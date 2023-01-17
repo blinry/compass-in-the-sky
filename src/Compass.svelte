@@ -7,7 +7,7 @@
     export let longitude
     export let date
 
-    export let tilt = 60
+    export let tilt = 0
 
     export let timezoneString = "Europe/Berlin"
     export let level = 5
@@ -224,6 +224,6 @@
         display: inline-block;
         /*background-color: white;
         opacity: 0.5;*/
-        transform: rotateX(--tilt);
+        transform: rotateX(var(--tilt));
     }
 </style>

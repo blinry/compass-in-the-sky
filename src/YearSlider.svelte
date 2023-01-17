@@ -2,10 +2,18 @@
     import {yearPercentageToDate} from "./sun.js"
 
     export let year
+    export let disabled = false
 </script>
 
 <div>
-    <input type="range" bind:value={year} min="0" max="0.99999" step="0.0001" />
+    <input
+        type="range"
+        bind:value={year}
+        min="0"
+        max="0.99999"
+        step="0.0001"
+        {disabled}
+    />
     <span class="big">
         {yearPercentageToDate(year).toLocaleDateString("en-US", {
             month: "long",

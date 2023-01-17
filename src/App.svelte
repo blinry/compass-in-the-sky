@@ -32,6 +32,14 @@
     let quiz
     let showSolution = false
 
+    $: {
+        if (chapter == "quiz1" || chapter == "quiz2") {
+            if (typeof quiz == "undefined") {
+                myNewQuiz()
+            }
+        }
+    }
+
     function nextChapter() {
         chapter = chapters[(chapters.indexOf(chapter) + 1) % chapters.length]
     }
@@ -76,8 +84,11 @@
     function keyDown(e) {
         console.log(e.key)
         if (e.key == " ") {
-            myNewQuiz()
-            return
+            if (chapter == "quiz1" || chapter == "quiz2") {
+                e.preventDefault()
+                myNewQuiz()
+                return
+            }
         }
 
         if (chapter === "quiz2") {
@@ -104,11 +115,17 @@
 <svelte:window on:keydown={keyDown} />
 
 <main>
-    <div id="header">Sun Compass</div>
+    <div id="header" on:click={() => (chapter = "motivation")}>
+        The Solar Compass
+    </div>
     <div id="nav">
-        <button on:click={prevChapter}>&lt;</button>
+        {#if chapter != chapters[0]}
+            <button on:click={prevChapter}>&lt;</button>
+        {/if}
         <span>{chapter}</span>
-        <button on:click={nextChapter}>&gt;</button>
+        {#if chapter != chapters[chapters.length - 1]}
+            <button on:click={nextChapter}>&gt;</button>
+        {/if}
     </div>
     <div id="content">
         {#if chapter === "motivation"}
@@ -174,6 +191,12 @@
                 three diagrams.
             </p>
         {:else if chapter === "quiz1" || chapter === "quiz2"}
+            <p>
+                Now it's time to practice! Look at the photo, and imagine that
+                you're in that location yourself. The sliders at the bottom tell
+                you how late it is, and the time of the year. Your task is to
+                drag align the sun icon with the sun...
+            </p>
             <button on:click={() => myNewQuiz()}>New (Space)</button>
             {#if chapter !== "quiz2"}
                 <button on:click={() => (showSolution = true)}
@@ -193,12 +216,18 @@
             <TimePicker
                 bind:date
                 hideYear={chapter == "time" || chapter == "cheatsheet"}
+                disabled={chapter == "quiz1" || chapter == "quiz2"}
             />
         {/if}
-        {latitude.toFixed(2)}
-        {longitude.toFixed(2)}
-        <br />
-        {date.toISOString()}
+        {#if chapter != "motivation" && chapter != "setup"}
+            <Map bind:latitude bind:longitude />
+        {/if}
+        <div>
+            {latitude.toFixed(2)}
+            {longitude.toFixed(2)}
+            <br />
+            {date.toISOString()}
+        </div>
     </div>
     <div id="big">
         {#if chapter == "motivation"}
@@ -227,6 +256,7 @@
                         northInteractive={true}
                         resetSun={true}
                         showHints={false}
+                        tilt={60}
                     />
                 {/if}
                 {#if showSolution}
@@ -237,6 +267,7 @@
                         {northAngle}
                         sunInteractive={false}
                         northInteractive={false}
+                        tilt={60}
                     />
                 {/if}
             </div>
@@ -262,6 +293,7 @@
         background-color: red;
         padding: 0.5rem;
         font-size: 150%;
+        cursor: pointer;
     }
     #nav {
         grid-area: nav;

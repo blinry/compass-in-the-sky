@@ -5,9 +5,9 @@
 
     export let date
     export let hideYear = false
+    export let disabled = false
 
     let hour, year
-    let disabled = false
 
     $: setDate(date)
     function setDate(date) {
