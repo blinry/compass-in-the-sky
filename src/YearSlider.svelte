@@ -1,20 +1,11 @@
 <script>
-    export let year
+    import {yearPercentageToDate} from "./sun.js"
 
-    function yearPercentageToDate(yearPercentage) {
-        /* be precise */
-        const year = Math.floor(yearPercentage * 365)
-        const day = yearPercentage * 365 - year
-        const date = new Date()
-        date.setFullYear(2020, 0, 1)
-        date.setDate(date.getDate() + year)
-        date.setHours(Math.floor(day * 24), ((day * 24) % 1) * 60, 0)
-        return date
-    }
+    export let year
 </script>
 
 <div>
-    <input type="range" bind:value={year} min="0" max="1" step="0.01" />
+    <input type="range" bind:value={year} min="0" max="0.99999" step="0.0001" />
     <span class="big">
         {yearPercentageToDate(year).toLocaleDateString("en-US", {
             month: "long",

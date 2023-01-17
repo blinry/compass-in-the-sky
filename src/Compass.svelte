@@ -7,6 +7,8 @@
     export let longitude
     export let date
 
+    export let tilt = 60
+
     export let timezoneString = "Europe/Berlin"
     export let level = 5
 
@@ -127,6 +129,7 @@
     on:touchstart={handleMousedown}
     on:touchend={handleMouseup}
     on:touchmove={handleMousemove}
+    style="--tilt: {tilt}deg"
 >
     <svg viewBox="-0.5 -0.5 1 1" bind:this={svg}>
         <circle
@@ -221,6 +224,6 @@
         display: inline-block;
         /*background-color: white;
         opacity: 0.5;*/
-        transform: rotateX(60deg);
+        transform: rotateX(--tilt);
     }
 </style>

@@ -1,27 +1,34 @@
 <script>
     import TimeSlider from "./TimeSlider.svelte"
     import YearSlider from "./YearSlider.svelte"
+    import {yearPercentageToDate, dateToYearPercentage} from "./sun.js"
 
     export let date
+    export let hideYear = false
 
     let hour, year
     let disabled = false
 
-    $: setHourYear(date)
-    function setHourYear(date) {
-        hour = date.getHours()
-        year = date.getMonth() / 12 + date.getDate() / 365
+    $: setDate(date)
+    function setDate(date) {
+        hour = date.getHours() + date.getMinutes() / 60
+        year = dateToYearPercentage(date)
     }
 
-    $: setDate(hour, year)
-    function setDate(hour, year) {
-        date = new Date()
-        date.setMonth(0)
-        date.setDate(1)
-        date.setDate(date.getDate() + Math.floor(year * 365))
+    $: setHour(hour)
+    function setHour(hour) {
+        console.log("here")
         date.setHours(Math.floor(hour), (hour % 1) * 60, 0)
+        date = date // trigger update
+    }
+    $: setYear(year)
+    function setYear(year) {
+        date = yearPercentageToDate(year)
+        setHour(hour)
     }
 </script>
 
 <TimeSlider bind:hour {disabled} />
-<YearSlider bind:year {disabled} />
+{#if !hideYear}
+    <YearSlider bind:year {disabled} />
+{/if}

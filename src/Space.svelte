@@ -21,7 +21,7 @@
             75,
             width / height,
             0.1,
-            1000,
+            1000
         )
 
         const renderer = new THREE.WebGLRenderer()
@@ -35,7 +35,7 @@
         const sunPosition = new THREE.Vector3(
             -Math.cos(sunAngle) * 10,
             0,
-            Math.sin(sunAngle) * 10,
+            Math.sin(sunAngle) * 10
         )
 
         light = new THREE.PointLight(0x404040, 5)
@@ -73,7 +73,7 @@
             0.02,
             0.02,
             earthRadius / 3,
-            32,
+            32
         )
         const markerMaterial = new THREE.MeshStandardMaterial({color: 0xffffff})
         marker = new THREE.Mesh(markerGeometry, markerMaterial)
@@ -127,7 +127,7 @@
             const sunPosition = new THREE.Vector3(
                 -Math.cos(sunAngle + earthRotation) * 10,
                 0,
-                Math.sin(sunAngle + earthRotation) * 10,
+                Math.sin(sunAngle + earthRotation) * 10
             )
 
             light.position.set(sunPosition.x, sunPosition.y, sunPosition.z)

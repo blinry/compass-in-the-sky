@@ -7,9 +7,12 @@
     //export let date
 
     let imgWidth = 600
-
-    $: left = ((longitude + 180) / 360) * imgWidth
-    $: top = (((90 - latitude) / 180) * imgWidth) / 2
+    let left = 0
+    let top = 0
+    $: {
+        left = ((longitude + 180) / 360) * imgWidth
+        top = (((90 - latitude) / 180) * imgWidth) / 2
+    }
 
     //$: subsolarPoint = SunCalc.getSubsolarPoint(date)
 
@@ -49,6 +52,7 @@
 <div
     id="container"
     bind:this={container}
+    bind:clientWidth={imgWidth}
     on:mousedown={handleMousedown}
     on:mousemove={handleMousemove}
     on:mouseup={handleMouseup}
@@ -60,7 +64,8 @@
 
 <style>
     #container {
-        width: 600px;
+        width: 100%;
+        height: 100%;
         position: relative;
     }
     img {

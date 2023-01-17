@@ -95,3 +95,21 @@ export const monthNames = [
     "November",
     "December",
 ]
+
+export function yearPercentageToDate(yearPercentage) {
+    const currentYear = new Date().getFullYear()
+    const secondsInCurrentYear =
+        (new Date(currentYear + 1, 0, 1) - new Date(currentYear, 0, 1)) / 1000
+    let seconds = yearPercentage * secondsInCurrentYear
+    let newDate = new Date(currentYear, 0, 1)
+    newDate.setSeconds(seconds)
+    return newDate
+}
+
+export function dateToYearPercentage(date) {
+    const currentYear = new Date().getFullYear()
+    const secondsInCurrentYear =
+        (new Date(currentYear + 1, 0, 1) - new Date(currentYear, 0, 1)) / 1000
+    let seconds = (date - new Date(currentYear, 0, 1)) / 1000
+    return seconds / secondsInCurrentYear
+}
