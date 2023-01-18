@@ -38,26 +38,69 @@ export function timezoneDiff(ianatz) {
     return (date.getTime() - invdate.getTime()) / 60 / 60 / 1000
 }
 
-export async function newQuiz(lat, lng) {
-    let jitter = 0.1
-    lat += jitter * (Math.random() - 0.5)
-    lng += jitter * (Math.random() - 0.5)
-    let size = 0.1
-    let lat1 = Number(lat - size).toFixed(3)
-    let lng1 = Number(lng - size).toFixed(3)
-    let lat2 = Number(lat + size).toFixed(3)
-    let lng2 = Number(lng + size).toFixed(3)
+let lastLat = 0
+let lastLng = 0
+let lastDate = 0
+let cachedEntries = []
+export async function newQuiz(lat, lng, date = undefined) {
+    console.log(lat, lastLat)
+    console.log(lng, lastLng)
+    console.log(date, lastDate)
+    if (
+        lat !== lastLat ||
+        lng !== lastLng ||
+        date !== lastDate ||
+        cachedEntries.lengt == 0
+    ) {
+        // We need to send a new query.
+        lastLat = lat
+        lastLng = lng
+        lastDate = date
+        console.log(cachedEntries.length)
 
-    console.log(lat1)
+        let jitter = 0.1
+        lat += jitter * (Math.random() - 0.5)
+        lng += jitter * (Math.random() - 0.5)
+        let size = 0.1
+        let lat1 = Number(lat - size).toFixed(3)
+        let lng1 = Number(lng - size).toFixed(3)
+        let lat2 = Number(lat + size).toFixed(3)
+        let lng2 = Number(lng + size).toFixed(3)
 
-    const url = `https://graph.mapillary.com/images?access_token=MLY|7569500839758282|7b3b3eced40c887cc2867488d6a50220&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url&bbox=${lng1},${lat1},${lng2},${lat2}&limit=1`
-    console.log(url)
-    let response = await fetch(url)
-    let json = await response.json()
+        console.log(lat1)
 
-    console.log(json)
+        const url = `https://graph.mapillary.com/images?access_token=MLY|7569500839758282|7b3b3eced40c887cc2867488d6a50220&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url&bbox=${lng1},${lat1},${lng2},${lat2}&limit=100`
+        console.log(url)
 
-    let entry = json.data[0]
+        let response = await fetch(url)
+        let json = await response.json()
+
+        //console.log(json)
+        if (json.data.length == 0) {
+            throw new Error("Didn't find Mapillary images in your area.")
+        }
+
+        if (typeof date === "undefined") {
+            // We can pick a random one.
+            cachedEntries = json.data
+        } else {
+            cachedEntries = json.data.filter((entry) => {
+                // Make sure that captured_at is no more than 90 days away from date.
+                let diff = Math.abs(
+                    new Date(entry.captured_at).getTime() - date.getTime()
+                )
+                return diff < 90 * 24 * 60 * 60 * 1000
+            })
+            if (cachedEntries.length == 0) {
+                throw new Error(
+                    "Didn't find Mapillary images captured in your current season."
+                )
+            }
+        }
+    }
+
+    let entry = cachedEntries[Math.floor(Math.random() * cachedEntries.length)]
+    cachedEntries = cachedEntries.filter((e) => e != entry)
 
     let quiz = {}
 

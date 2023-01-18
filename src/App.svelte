@@ -324,8 +324,8 @@
             <Map bind:latitude bind:longitude />
         {/if}
         <div>
-            {latitude.toFixed(2)}
-            {longitude.toFixed(2)}
+            {latitude}
+            {longitude}
             <br />
             {date.toISOString()}
         </div>
