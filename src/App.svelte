@@ -84,8 +84,20 @@
         console.log(direction)
     }
 
+    function spacePressed() {
+        if (showSolution) {
+            myNewQuiz()
+        } else {
+            showSolution = true
+        }
+    }
+
+    var keyIsDown = {}
+    function keyUp(e) {
+        keyIsDown[e.key] = false
+    }
     function keyDown(e) {
-        console.log(e.key)
+        keyIsDown[e.key] = true
         if (e.key == " ") {
             if (
                 chapter == "quiz0" ||
@@ -93,59 +105,47 @@
                 chapter == "quiz2"
             ) {
                 e.preventDefault()
-                myNewQuiz()
+                spacePressed()
                 return
             }
         }
 
-        if (chapter === "quiz0") {
-            const directions = {
-                ArrowUp: 0,
-                ArrowRight: Math.PI / 2,
-                ArrowDown: Math.PI,
-                ArrowLeft: (3 * Math.PI) / 2,
-            }
-            if (typeof directions[e.key] !== "undefined") {
-                mySunAngle = directions[e.key]
-                showSolution = true
-            }
+        const circle = ["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"]
+        const directions = {
+            ArrowUp: 0,
+            ArrowRight: Math.PI / 2,
+            ArrowDown: Math.PI,
+            ArrowLeft: (3 * Math.PI) / 2,
         }
 
-        /*if (chapter === "quiz1") {
-            const directions = {
-                ArrowUp: 0,
-                ArrowRight: Math.PI / 2,
-                ArrowDown: Math.PI,
-                ArrowLeft: (3 * Math.PI) / 2,
+        if (typeof directions[e.key] !== "undefined") {
+            e.preventDefault()
+            // Check neighboring directions and set direction diagonally, if necessary.
+            var angle
+            if (keyIsDown[circle[(circle.indexOf(e.key) + 1) % 4]]) {
+                angle = directions[e.key] + Math.PI / 4
+            } else if (keyIsDown[circle[(circle.indexOf(e.key) + 3) % 4]]) {
+                angle = directions[e.key] - Math.PI / 4
+            } else {
+                angle = directions[e.key]
             }
-            if (typeof directions[e.key] !== "undefined") {
-                myNorthAngle = directions[e.key] + Math.PI
-                showSolution = true
-            }
-        }*/
 
-        if (chapter === "quiz2") {
-            const directions = {
-                ArrowUp: 0,
-                ArrowRight: Math.PI / 2,
-                ArrowDown: Math.PI,
-                ArrowLeft: (3 * Math.PI) / 2,
-            }
-            if (typeof directions[e.key] !== "undefined") {
+            if (chapter === "quiz0") {
+                mySunAngle = angle
+            } else if (chapter === "quiz2") {
                 const offsets = {
                     N: 0,
                     W: Math.PI / 2,
                     S: Math.PI,
                     E: (3 * Math.PI) / 2,
                 }
-                myNorthAngle = directions[e.key] + offsets[direction]
-                showSolution = true
+                myNorthAngle = angle + offsets[direction]
             }
         }
     }
 </script>
 
-<svelte:window on:keydown={keyDown} />
+<svelte:body on:keydown={keyDown} on:keyup={keyUp} />
 
 <main>
     <div id="header" on:click={() => (chapter = "motivation")}>
@@ -302,12 +302,14 @@
         {/if}
 
         {#if chapter === "quiz0" || chapter === "quiz1" || chapter === "quiz2"}
-            <button on:click={() => myNewQuiz()}>New (Space)</button>
-            {#if chapter !== "quiz2"}
-                <button on:click={() => (showSolution = true)}
-                    >Show solution</button
-                >
-            {/if}
+            <button on:click={spacePressed}>
+                {#if showSolution}
+                    New photo
+                {:else}
+                    Show solution
+                {/if}
+                (Space)
+            </button>
         {/if}
     </div>
     <div id="sliders">
@@ -354,21 +356,19 @@
                 style="width: 100%; height: 100%; object-fit: cover;"
             />
             <div id="compass">
-                {#if chapter !== "quiz2" || showSolution}
-                    <Compass
-                        {latitude}
-                        {longitude}
-                        {date}
-                        bind:sunAngle={mySunAngle}
-                        northAngle={myNorthAngle}
-                        northInteractive={true}
-                        resetSun={true}
-                        showHints={false}
-                        tilt={60}
-                        showDirections={chapter != "quiz0"}
-                        showSun={chapter != "quiz2"}
-                    />
-                {/if}
+                <Compass
+                    {latitude}
+                    {longitude}
+                    {date}
+                    bind:sunAngle={mySunAngle}
+                    northAngle={myNorthAngle}
+                    northInteractive={true}
+                    resetSun={true}
+                    showHints={false}
+                    tilt={60}
+                    showDirections={chapter != "quiz0"}
+                    showSun={chapter != "quiz2"}
+                />
                 {#if showSolution}
                     <Compass
                         {latitude}
