@@ -11,7 +11,7 @@
         "motivation",
         "setup",
         "quiz0",
-        "3d",
+        //"3d",
         "time",
         "quiz1",
         "date",
@@ -19,7 +19,7 @@
         "quiz2",
         "yay",
     ]
-    let chapter = chapters[2]
+    let chapter = chapters[0]
 
     let date = new Date()
 
@@ -98,12 +98,15 @@
             showSolution = true
             let myAngle
             let correctAngle
+            let what
             if (chapter == "quiz0") {
                 myAngle = mySunAngle
                 correctAngle = quiz.sunAngle
-            } else if (chapter == "quiz2") {
+                what = "sun direction"
+            } else if (chapter == "quiz1" || chapter == "quiz2") {
                 myAngle = myNorthAngle
                 correctAngle = quiz.northAngle
+                what = "compass direction"
             }
             let angleDiff =
                 (Math.abs(myAngle - correctAngle) / (2 * Math.PI)) * 360
@@ -119,7 +122,7 @@
                 [160, "😕"],
                 [180, "😡"],
             ]
-            feedback = `You were off by ${angleDiff} degrees.`
+            feedback = `Your ${what} was off by ${angleDiff} degrees.`
             for (let i = 0; i < ratings.length; i++) {
                 if (angleDiff < ratings[i][0]) {
                     feedback += " " + ratings[i][1]
@@ -201,21 +204,28 @@
         {#if chapter === "motivation"}
             <p>Imagine you're lost in the woods. 🌲</p>
             <p>
-                You know that to the North is a big city, but which direction is
+                You know that to the north is a big city, but which direction is
                 that?
             </p>
             <p>
-                This site will teach you <b>how to find North using the sun</b>.
-                Even though you can look that up on your smartphone, it's a
-                useful skill to give you a better intuition for where to go!
+                This site will teach you <b
+                    >find the compass directions using the sun</b
+                >. You will get an intuitive sense on where to go, without
+                having to rely on maps or your phone!
             </p>
         {:else if chapter === "setup"}
             <p>
-                The sun moves differently over the sky depending on where on the
-                planet you are. Set your position by clicking on the map, or use
-                the "find my position" button to see whether your browser can
-                give us a good estimation. This doesn't need to be precise.
+                The technique I'm about to teach you depends on where on Earth
+                you are. I've already asked your browser to give me an
+                estimation.
             </p>
+
+            <p>
+                Does this seem right? You can also <b
+                    >set a position by clicking on the map</b
+                >. This doesn't need to be precise.
+            </p>
+
             <button on:click={findPosition}>Find my position</button>
         {:else if chapter === "3d"}
             <p>
@@ -242,18 +252,23 @@
             </p>
         {:else if chapter === "date"}
             <p>
-                Depending on the time of year, this pattern will change. There's
-                a new slider below, which you can use to set the date! Try it!
+                Here's a trick to make you more precise: Depending on the time
+                of year, the pattern you've seen will change! There's a new
+                slider below, which you can use to set the date! Try it!
             </p>
             <p>
                 No matter where on Earth you are, the sun will always rise
-                approximately in the East and set in the West. Around noon, the
-                sun might be in the North, in the South, or overhead.
+                approximately in the east and set in the west. Around noon, the
+                sun might be in the north, in the south, or overhead.
             </p>
             <p>
                 Does your country have daylight savings time? If so, you'll
                 notice a sudden jump when daylight savings time starts and ends.
                 Try to find it!
+            </p>
+            <p>
+                No need to memorize all of this, we've prepared a handy cheat
+                sheet for you in the next section!
             </p>
         {:else if chapter === "cheatsheet"}
             <p>
@@ -272,20 +287,22 @@
                     The sun's path in <b>December</b> ("Winter" in the northern hemisphere)
                 </li>
             </ul>
+            <p>Try to roughly memorize how the angles change over the year!</p>
         {:else if chapter === "quiz0"}
             <p>
-                Let's immediately start with some practice! The first skill that
-                you need is to figure out in which direction the sun is.
+                The first skill that you need is to figure out in which
+                direction the sun is.
             </p>
             <p>
-                Look at the photo, and then use your arrow keys to guess the
-                direction of the sun. For example, if you think the sun is
-                behind you in the photo, press the down arrow.
+                Look at the photo, and then
+                <b>drag the sun in the diagram to match the photo</b>. You can
+                also use your arrow keys. For example, if you think the sun is
+                behind you, drag the yellow icon to the bottom.
             </p>
             <p>
-                Sometimes, this can be tricky. Do your best! If the sky is
-                cloudy, sometimes you can guess the sun's position by what side
-                of a tree, lamppost or building is brightest!
+                Sometimes, this can be tricky. Give it a try nevertheless! If
+                the sky is cloudy, you often can guess the sun's position by the
+                brightest side of a tree or building!
             </p>
         {:else if chapter === "quiz1"}
             <p>
@@ -294,14 +311,16 @@
             </p>
             <ol>
                 <li>
-                    First, drag the sun in the diagram so that it aligns with
-                    the photo.
+                    Drag the sun in the diagram so that it aligns with the
+                    photo.
                 </li>
                 <li>
-                    And second, drag the compass directions so that it aligns
-                    with the sun at the specified time.
+                    Drag the compass directions so that it aligns with the sun
+                    at the specified time. For example, in the morning, the sun
+                    is often in the east!
                 </li>
             </ol>
+            <p>All photos were taken this month.</p>
         {:else if chapter === "quiz2"}
             <p>The third and final skill is to do it all in your head!</p>
             <p>
@@ -355,7 +374,9 @@
         {#if chapter == "time" || chapter == "date" || chapter == "cheatsheet" || chapter === "quiz1" || chapter === "quiz2"}
             <TimePicker
                 bind:date
-                hideYear={chapter == "time" || chapter == "cheatsheet"}
+                hideYear={chapter == "time" ||
+                    chapter == "quiz1" ||
+                    chapter == "cheatsheet"}
                 disabled={chapter == "quiz0" ||
                     chapter == "quiz1" ||
                     chapter == "quiz2"}
@@ -365,6 +386,7 @@
             <Map bind:latitude bind:longitude />
         {/if}
         <div>
+            Debug info:
             {latitude}
             {longitude}
             <br />

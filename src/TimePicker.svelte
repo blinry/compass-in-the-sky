@@ -28,7 +28,15 @@
     }
 </script>
 
-<TimeSlider bind:hour {disabled} />
-{#if !hideYear}
-    <YearSlider bind:year {disabled} />
-{/if}
+<div>
+    <TimeSlider bind:hour {disabled} />
+    {#if !hideYear}
+        <YearSlider bind:year {disabled} />
+    {/if}
+</div>
+
+<style>
+    div {
+        font-size: 120%;
+    }
+</style>
