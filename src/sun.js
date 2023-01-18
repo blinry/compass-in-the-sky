@@ -120,7 +120,10 @@ export async function newQuiz(lat, lng, date = undefined) {
     //date.setHours(Math.floor(hour), (hour % 1) * 60, 0)
     //date.setMonth(month - 1)
 
-    quiz.sunAngle = SunCalc.getPosition(quiz.date, lat, lng).azimuth
+    quiz.sunAngle =
+        SunCalc.getPosition(quiz.date, lat, lng).azimuth +
+        Math.PI +
+        quiz.northAngle
 
     return quiz
 }

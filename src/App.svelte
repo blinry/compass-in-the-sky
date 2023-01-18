@@ -19,7 +19,7 @@
         "quiz2",
         "yay",
     ]
-    let chapter = chapters[5]
+    let chapter = chapters[2]
 
     let date = new Date()
 
@@ -34,6 +34,7 @@
 
     let quiz
     let showSolution = false
+    let feedback = ""
 
     $: {
         if (typeof quiz == "undefined") {
@@ -95,6 +96,36 @@
             myNewQuiz()
         } else {
             showSolution = true
+            let myAngle
+            let correctAngle
+            if (chapter == "quiz0") {
+                myAngle = mySunAngle
+                correctAngle = quiz.sunAngle
+            } else if (chapter == "quiz2") {
+                myAngle = myNorthAngle
+                correctAngle = quiz.northAngle
+            }
+            let angleDiff =
+                (Math.abs(myAngle - correctAngle) / (2 * Math.PI)) * 360
+            angleDiff = angleDiff % 360
+            angleDiff = Math.min(angleDiff, 360 - angleDiff)
+            angleDiff = Math.round(angleDiff)
+
+            let ratings = [
+                [10, "🤯"],
+                [45, "😎"],
+                [90, "🙂"],
+                [130, "😐"],
+                [160, "😕"],
+                [180, "😡"],
+            ]
+            feedback = `You were off by ${angleDiff} degrees.`
+            for (let i = 0; i < ratings.length; i++) {
+                if (angleDiff < ratings[i][0]) {
+                    feedback += " " + ratings[i][1]
+                    break
+                }
+            }
         }
     }
 
@@ -316,6 +347,8 @@
                 {/if}
                 (Space)
             </button>
+            <br />
+            <b>{feedback}</b>
         {/if}
     </div>
     <div id="sliders">
