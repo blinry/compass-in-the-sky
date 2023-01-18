@@ -10,15 +10,16 @@
     let chapters = [
         "motivation",
         "setup",
+        "quiz0",
         "3d",
         "time",
         "date",
         "cheatsheet",
-        "quiz0",
         "quiz1",
         "quiz2",
+        "yay",
     ]
-    let chapter = chapters[7]
+    let chapter = chapters[0]
 
     let date = new Date()
 
@@ -75,8 +76,8 @@
         console.log(quiz)
         date = quiz.date
         northAngle = quiz.northAngle
-        mySunAngle = northAngle + quiz.sunAngle + Math.PI
-        //mySunAngle = 0
+
+        mySunAngle = 0
 
         const directions = ["N", "E", "S", "W"]
         direction = directions[Math.floor(Math.random() * directions.length)]
@@ -110,7 +111,7 @@
             }
         }
 
-        if (chapter === "quiz1") {
+        /*if (chapter === "quiz1") {
             const directions = {
                 ArrowUp: 0,
                 ArrowRight: Math.PI / 2,
@@ -118,10 +119,10 @@
                 ArrowLeft: (3 * Math.PI) / 2,
             }
             if (typeof directions[e.key] !== "undefined") {
-                myNorthAngle = directions[e.key]
+                myNorthAngle = directions[e.key] + Math.PI
                 showSolution = true
             }
-        }
+        }*/
 
         if (chapter === "quiz2") {
             const directions = {
@@ -161,15 +162,15 @@
     </div>
     <div id="content">
         {#if chapter === "motivation"}
-            <p>Imagine you're lost in the woods.</p>
+            <p>Imagine you're lost in the woods. 🌲</p>
             <p>
                 You know that to the North is a big city, but which direction is
                 that?
             </p>
             <p>
-                This site will teach you how to find North using the sun. Even
-                if you have a map, it's a useful skill to give you a better
-                intuition for how to get where you want to go!
+                This site will teach you <b>how to find North using the sun</b>.
+                Even though you can look that up on your smartphone, it's a
+                useful skill to give you a better intuition for where to go!
             </p>
         {:else if chapter === "setup"}
             <p>
@@ -220,30 +221,85 @@
         {:else if chapter === "cheatsheet"}
             <p>
                 To keep things simple, focus on this cheat sheet, which shows
-                three diagrams.
+                three diagrams:
             </p>
+            <ul>
+                <li>
+                    The sun's path in <b>June</b> ("Summer" in the northern hemisphere)
+                </li>
+                <li>
+                    The sun's path in <b>April and September</b> is very similar,
+                    so here we've combined them into one diagram
+                </li>
+                <li>
+                    The sun's path in <b>December</b> ("Winter" in the northern hemisphere)
+                </li>
+            </ul>
         {:else if chapter === "quiz0"}
             <p>
-                Now it's time to practice! The first skill that you need is to
-                figure out in which direction the sun is!
+                Let's immediately start with some practice! The first skill that
+                you need is to figure out in which direction the sun is.
             </p>
             <p>
                 Look at the photo, and then use your arrow keys to guess the
-                direction of the sun.
+                direction of the sun. For example, if you think the sun is
+                behind you in the photo, press the down arrow.
             </p>
             <p>
-                For example, if you think the sun is behind you in the photo,
-                press the down arrow.
+                Sometimes, this can be tricky. Do your best! If the sky is
+                cloudy, sometimes you can guess the sun's position by what side
+                of a tree, lamppost or building is brightest!
             </p>
-            <p>Sometimes, this can be tricky. Do your best! :D</p>
         {:else if chapter === "quiz1"}
             <p>
                 The second skill is to align the compass directions with the
-                sun. In this exercise, we've already set the direction of the
-                sun for you.
+                sun, depending on the time.
             </p>
-            <p>You your arrow keys to tell us where <b>North</b> is!</p>
-        {:else if chapter === "quiz1"}{/if}
+            <ol>
+                <li>
+                    First, drag the sun in the diagram so that it aligns with
+                    the photo.
+                </li>
+                <li>
+                    And second, drag the compass directions so that it aligns
+                    with the sun at the specified time.
+                </li>
+            </ol>
+        {:else if chapter === "quiz2"}
+            <p>The third and final skill is to do it all in your head!</p>
+            <p>
+                When you want to use the sun compass in the real world, you
+                won't have handy diagrams to guide you, so this is the ultimate
+                test of your abilities!
+            </p>
+            <p>Here's how to do it:</p>
+            <ol>
+                <li>
+                    Check where the sun is in the sky, and remember that
+                    direction.
+                </li>
+                <li>
+                    Check the current time and imagine the north-south axis
+                    relative to the sun.
+                </li>
+                <li>
+                    Imagine you want to do <b>{direction}</b>! Where is that
+                    direction, relative to the way you're facing? Press the
+                    corresponding arrow key!
+                </li>
+            </ol>
+        {:else if chapter === "yay"}
+            <p>You did it! You learned a new skill!</p>
+            <p>
+                When you look around you, can you tell the sun's direction? Can
+                you use this technique to figure out which direction you're
+                facing currently?
+            </p>
+            <p>
+                If you'd like to drill this skill later, come back to the last
+                quiz and train it a bit more!
+            </p>
+        {/if}
 
         {#if chapter === "quiz0" || chapter === "quiz1" || chapter === "quiz2"}
             <button on:click={() => myNewQuiz()}>New (Space)</button>
@@ -252,16 +308,10 @@
                     >Show solution</button
                 >
             {/if}
-
-            {#if chapter == "quiz2"}
-                <p>
-                    Which direction is <b>{direction}</b>? Press an arrow key!
-                </p>
-            {/if}
         {/if}
     </div>
     <div id="sliders">
-        {#if chapter == "time" || chapter == "date" || chapter == "cheatsheet" || chapter === "quiz0" || chapter === "quiz1" || chapter === "quiz2"}
+        {#if chapter == "time" || chapter == "date" || chapter == "cheatsheet" || chapter === "quiz1" || chapter === "quiz2"}
             <TimePicker
                 bind:date
                 hideYear={chapter == "time" || chapter == "cheatsheet"}
@@ -288,7 +338,14 @@
         {:else if chapter == "3d"}
             <Space {latitude} {longitude} />
         {:else if chapter == "time" || chapter === "date"}
-            <Compass {latitude} {longitude} {date} tilt="0" />
+            <Compass
+                {latitude}
+                {longitude}
+                {date}
+                tilt="0"
+                sunInteractive={false}
+                northInteractive={false}
+            />
         {:else if chapter == "cheatsheet"}
             <CheatSheet {latitude} {longitude} {date} />
         {:else if chapter == "quiz0" || chapter == "quiz1" || chapter === "quiz2"}
@@ -304,12 +361,12 @@
                         {date}
                         bind:sunAngle={mySunAngle}
                         northAngle={myNorthAngle}
-                        sunInteractive={chapter == "quiz0"}
                         northInteractive={true}
                         resetSun={true}
                         showHints={false}
                         tilt={60}
                         showDirections={chapter != "quiz0"}
+                        showSun={chapter != "quiz2"}
                     />
                 {/if}
                 {#if showSolution}
