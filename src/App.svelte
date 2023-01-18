@@ -17,6 +17,7 @@
         "date",
         "cheatsheet",
         "quiz2",
+        "quiz3",
         "yay",
     ]
     let chapter = chapters[0]
@@ -41,7 +42,7 @@
             if (chapter == "quiz1") {
                 myNewQuiz(true)
             }
-            if (chapter == "quiz0" || chapter == "quiz2") {
+            if (chapter == "quiz0" || chapter == "quiz3") {
                 myNewQuiz()
             }
         }
@@ -75,6 +76,7 @@
 
     async function myNewQuiz(simple = false) {
         showSolution = false
+        feedback = ""
         if (simple) {
             quiz = await newQuiz(latitude, longitude, date)
         } else {
@@ -103,11 +105,17 @@
                 myAngle = mySunAngle
                 correctAngle = quiz.sunAngle
                 what = "sun direction"
-            } else if (chapter == "quiz1" || chapter == "quiz2") {
+            } else if (
+                chapter == "quiz1" ||
+                chapter == "quiz2" ||
+                chapter == "quiz3"
+            ) {
                 myAngle = myNorthAngle
                 correctAngle = quiz.northAngle
                 what = "compass direction"
             }
+            console.log("myAngle", myAngle)
+            console.log("correctAngle", correctAngle)
             let angleDiff =
                 (Math.abs(myAngle - correctAngle) / (2 * Math.PI)) * 360
             angleDiff = angleDiff % 360
@@ -142,7 +150,8 @@
             if (
                 chapter == "quiz0" ||
                 chapter == "quiz1" ||
-                chapter == "quiz2"
+                chapter == "quiz2" ||
+                chapter == "quiz3"
             ) {
                 e.preventDefault()
                 spacePressed()
@@ -172,7 +181,7 @@
 
             if (chapter === "quiz0") {
                 mySunAngle = angle
-            } else if (chapter === "quiz2") {
+            } else if (chapter === "quiz3") {
                 const offsets = {
                     N: 0,
                     W: Math.PI / 2,
@@ -322,13 +331,19 @@
             </ol>
             <p>All photos were taken this month.</p>
         {:else if chapter === "quiz2"}
-            <p>The third and final skill is to do it all in your head!</p>
+            <p>
+                To practice this, we will now give you photos from all over the
+                year! Again, drag the sun and the compass, and learn to get a
+                feeling of how the angles change depending on the date.
+            </p>
+        {:else if chapter === "quiz3"}
+            <p>The fourth and final skill is to do it all in your head!</p>
             <p>
                 When you want to use the sun compass in the real world, you
                 won't have handy diagrams to guide you, so this is the ultimate
                 test of your abilities!
             </p>
-            <p>Here's how to do it:</p>
+            <!--<p>Here's how to do it:</p>
             <ol>
                 <li>
                     Check where the sun is in the sky, and remember that
@@ -344,20 +359,27 @@
                     corresponding arrow key!
                 </li>
             </ol>
+            -->
+            <p>
+                Look at the photo, and try to figure out where {direction} is! Then,
+                drag the compass or use your arrow keys. Press space to show the
+                solution.
+            </p>
         {:else if chapter === "yay"}
             <p>You did it! You learned a new skill!</p>
             <p>
-                When you look around you, can you tell the sun's direction? Can
-                you use this technique to figure out which direction you're
-                facing currently?
+                When you look around you right now, can you tell the sun's
+                direction? Can you use this technique to figure out which
+                direction you're facing currently?
             </p>
             <p>
                 If you'd like to drill this skill later, come back to the last
                 quiz and train it a bit more!
             </p>
+            <p>Congrats again!</p>
         {/if}
 
-        {#if chapter === "quiz0" || chapter === "quiz1" || chapter === "quiz2"}
+        {#if chapter === "quiz0" || chapter === "quiz1" || chapter === "quiz2" || chapter === "quiz3"}
             <button on:click={spacePressed}>
                 {#if showSolution}
                     New photo
@@ -371,7 +393,7 @@
         {/if}
     </div>
     <div id="sliders">
-        {#if chapter == "time" || chapter == "date" || chapter == "cheatsheet" || chapter === "quiz1" || chapter === "quiz2"}
+        {#if chapter == "time" || chapter == "date" || chapter == "cheatsheet" || chapter === "quiz1" || chapter === "quiz2" || chapter === "quiz3"}
             <TimePicker
                 bind:date
                 hideYear={chapter == "time" ||
@@ -379,7 +401,8 @@
                     chapter == "cheatsheet"}
                 disabled={chapter == "quiz0" ||
                     chapter == "quiz1" ||
-                    chapter == "quiz2"}
+                    chapter == "quiz2" ||
+                    chapter == "quiz3"}
             />
         {/if}
         {#if chapter != "motivation" && chapter != "setup"}
@@ -414,7 +437,7 @@
             />
         {:else if chapter == "cheatsheet"}
             <CheatSheet {latitude} {longitude} {date} />
-        {:else if chapter == "quiz0" || chapter == "quiz1" || chapter === "quiz2"}
+        {:else if chapter == "quiz0" || chapter == "quiz1" || chapter === "quiz2" || chapter === "quiz3"}
             <img
                 src={quiz?.image}
                 style="width: 100%; height: 100%; object-fit: cover;"
@@ -425,13 +448,13 @@
                     {longitude}
                     {date}
                     bind:sunAngle={mySunAngle}
-                    northAngle={myNorthAngle}
+                    bind:northAngle={myNorthAngle}
                     northInteractive={true}
                     resetSun={true}
                     showHints={false}
                     tilt={60}
                     showDirections={chapter != "quiz0"}
-                    showSun={chapter != "quiz2"}
+                    showSun={chapter != "quiz3"}
                 />
                 {#if showSolution}
                     <Compass
