@@ -58,10 +58,10 @@ export async function newQuiz(lat, lng, date = undefined) {
         lastDate = date
         console.log(cachedEntries.length)
 
-        let jitter = 0.1
+        let jitter = 0
         lat += jitter * (Math.random() - 0.5)
         lng += jitter * (Math.random() - 0.5)
-        let size = 0.1
+        let size = 0.01
         let lat1 = Number(lat - size).toFixed(3)
         let lng1 = Number(lng - size).toFixed(3)
         let lat2 = Number(lat + size).toFixed(3)
@@ -85,15 +85,18 @@ export async function newQuiz(lat, lng, date = undefined) {
             cachedEntries = json.data
         } else {
             cachedEntries = json.data.filter((entry) => {
-                // Make sure that captured_at is no more than 90 days away from date.
+                // Make sure that captured_at is no more than a specified number days away from date.
+                const maxDayDiff = 45
                 let diff = Math.abs(
                     new Date(entry.captured_at).getTime() - date.getTime()
                 )
-                return diff < 90 * 24 * 60 * 60 * 1000
+                let dayDiff = diff / 1000 / 60 / 60 / 24
+                console.log("diff", dayDiff)
+                return dayDiff % 365 < maxDayDiff
             })
             if (cachedEntries.length == 0) {
                 throw new Error(
-                    "Didn't find Mapillary images captured in your current season."
+                    "Didn't find Mapillary images sufficiently close to your day of year."
                 )
             }
         }
@@ -118,8 +121,6 @@ export async function newQuiz(lat, lng, date = undefined) {
     //date.setMonth(month - 1)
 
     quiz.sunAngle = SunCalc.getPosition(quiz.date, lat, lng).azimuth
-
-    console.log(quiz)
 
     return quiz
 }

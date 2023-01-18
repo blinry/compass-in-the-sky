@@ -13,13 +13,13 @@
         "quiz0",
         "3d",
         "time",
+        "quiz1",
         "date",
         "cheatsheet",
-        "quiz1",
         "quiz2",
         "yay",
     ]
-    let chapter = chapters[0]
+    let chapter = chapters[5]
 
     let date = new Date()
 
@@ -36,10 +36,16 @@
     let showSolution = false
 
     $: {
-        if (chapter == "quiz0" || chapter == "quiz1" || chapter == "quiz2") {
-            if (typeof quiz == "undefined") {
+        if (typeof quiz == "undefined") {
+            if (chapter == "quiz1") {
+                myNewQuiz(true)
+            }
+            if (chapter == "quiz0" || chapter == "quiz2") {
                 myNewQuiz()
             }
+        }
+        if (chapter == "time") {
+            date = new Date()
         }
     }
 
@@ -63,16 +69,16 @@
     }
 
     onMount(async () => {
-        /*window.addEventListener("contextmenu", function (e) {
-            e.preventDefault()
-        })*/
         findPosition()
-        //myNewQuiz()
     })
 
-    async function myNewQuiz() {
+    async function myNewQuiz(simple = false) {
         showSolution = false
-        quiz = await newQuiz(latitude, longitude)
+        if (simple) {
+            quiz = await newQuiz(latitude, longitude, date)
+        } else {
+            quiz = await newQuiz(latitude, longitude)
+        }
         console.log(quiz)
         date = quiz.date
         northAngle = quiz.northAngle
@@ -149,7 +155,7 @@
 
 <main>
     <div id="header" on:click={() => (chapter = "motivation")}>
-        The Solar Compass
+        The Solar Compass ☀️
     </div>
     <div id="nav">
         {#if chapter != chapters[0]}
@@ -190,8 +196,8 @@
             </p>
         {:else if chapter === "time"}
             <p>
-                Here's a diagram of how the sun moves over the sky during the
-                day. Drag the time slider below to see it move!
+                Here's a diagram of how the sun moves over the sky today. Drag
+                the time slider below to see it move!
             </p>
             <p>
                 The numbers in the diagram tell you where the sun is at that
@@ -334,7 +340,10 @@
     </div>
     <div id="big">
         {#if chapter == "motivation"}
-            <img src="forest.jpg" />
+            <div
+                class="fullscreen"
+                style="background-image: url(forest.jpg); background-size: cover; background-position: center center; width: 100%; height: 100%"
+            />
         {:else if chapter == "setup"}
             <Map bind:latitude bind:longitude />
         {:else if chapter == "3d"}
@@ -401,14 +410,14 @@
     }
     #header {
         grid-area: header;
-        background-color: red;
+        background-color: #ccc;
         padding: 0.5rem;
         font-size: 150%;
         cursor: pointer;
     }
     #nav {
         grid-area: nav;
-        background-color: gray;
+        background-color: #eee;
         display: flex;
     }
     #nav span {
@@ -416,9 +425,12 @@
         padding: 0.5rem;
         text-align: center;
     }
+    #nav button {
+        width: 3rem;
+        height: 3rem;
+    }
     #content {
         grid-area: content;
-        background-color: yellow;
         padding: 1rem;
         overflow-y: auto;
     }
@@ -427,12 +439,12 @@
     }
     #big {
         grid-area: big;
-        background-color: blue;
+        background-color: #eee;
         position: relative;
     }
     #sliders {
         grid-area: sliders;
-        background-color: green;
+        background-color: #eee;
         padding: 1rem;
     }
     #compass {

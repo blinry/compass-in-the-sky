@@ -25,7 +25,6 @@
 <style>
     div {
         display: flex;
-        background: brown;
     }
     input {
         flex: 1;
