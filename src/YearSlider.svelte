@@ -8,15 +8,17 @@
 </script>
 
 <div>
-    <input
-        type="range"
-        value={year}
-        on:input={(e) => dispatch("change", e.target.value)}
-        min="0"
-        max="0.99999"
-        step="0.00001"
-        {disabled}
-    />
+    {#if !disabled}
+        <input
+            type="range"
+            value={year}
+            on:input={(e) => dispatch("change", e.target.value)}
+            min="0"
+            max="0.99999"
+            step="0.00001"
+            {disabled}
+        />
+    {/if}
     <span class="big">
         {yearPercentageToDate(year).toLocaleDateString("en-US", {
             month: "long",

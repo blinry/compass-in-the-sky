@@ -15,15 +15,16 @@
 </script>
 
 <div>
-    <input
-        type="range"
-        value={hour}
-        on:input={(e) => dispatch("change", e.target.value)}
-        min="0"
-        max="24"
-        step="0.01"
-        {disabled}
-    />
+    {#if !disabled}
+        <input
+            type="range"
+            value={hour}
+            on:input={(e) => dispatch("change", e.target.value)}
+            min="0"
+            max="24"
+            step="0.01"
+        />
+    {/if}
     <span class="big">
         {format(hour)}
     </span>
