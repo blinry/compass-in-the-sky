@@ -543,6 +543,14 @@
         {:else if chapter === "yay"}
             <p>You did it! You learned a new skill!</p>
             <p>
+                I'd love to feedback on this tool! <b
+                    ><a
+                        href="https://docs.google.com/forms/d/e/1FAIpQLScDaWpryKoinLP0eKOR660HDNvBgvmv6Sbo4k5hNzXDoJ2MoA/viewform"
+                        >Click here to open a feedback form!</a
+                    ></b
+                >
+            </p>
+            <p>
                 When you look around you right now, can you tell the sun's
                 direction? Can you use this technique to figure out which
                 direction you're facing currently?
