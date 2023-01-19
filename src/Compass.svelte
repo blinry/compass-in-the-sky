@@ -99,15 +99,16 @@
         }
         let loc = cursorPoint(event)
         if (movingCompass) {
-            northAngle = Math.atan2(loc.y, loc.x) + Math.PI / 2
+            northAngle = Math.atan2(loc.y, loc.x) + dragStartAngle
         }
         if (movingSun) {
-            sunAngle = Math.atan2(loc.y, loc.x) + Math.PI / 2
+            sunAngle = Math.atan2(loc.y, loc.x) + dragStartAngle
         }
     }
 
     let movingSun = false
     let movingCompass = false
+    let dragStartAngle = 0
     function handleMousedown(event) {
         if (event.touches) {
             event.clientX = event.touches[0].pageX
@@ -118,10 +119,12 @@
         if (d < 0.35) {
             if (sunInteractive) {
                 movingSun = true
+                dragStartAngle = sunAngle - Math.atan2(loc.y, loc.x)
             }
         } else {
             if (northInteractive) {
                 movingCompass = true
+                dragStartAngle = northAngle - Math.atan2(loc.y, loc.x)
             }
         }
     }
