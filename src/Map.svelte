@@ -17,10 +17,6 @@
 
     //$: subsolarPoint = SunCalc.getSubsolarPoint(date)
 
-    //$: {
-    //    console.log({lat: subsolarPoint.latitude, lon: subsolarPoint.longitude})
-    //}
-
     //$: sunLeft = ((subsolarPoint.longitude + 180) / 360) * imgWidth
 
     //$: sunTop =

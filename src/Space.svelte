@@ -109,13 +109,8 @@
     })
 
     $: {
-        console.log(latitude)
-    }
-
-    $: {
         if (marker) {
             let angle = ((latitude / 90) * Math.PI) / 2
-            console.log(angle)
             marker.position.x = Math.cos(angle) * earthRadius
             marker.position.y = Math.sin(angle) * earthRadius
             marker.rotation.z = angle + Math.PI / 2

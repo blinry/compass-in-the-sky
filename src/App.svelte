@@ -82,7 +82,6 @@
         } else {
             quiz = await newQuiz(latitude, longitude)
         }
-        console.log(quiz)
         date = quiz.date
         northAngle = quiz.northAngle
 
@@ -90,7 +89,6 @@
 
         const directions = ["N", "E", "S", "W"]
         direction = directions[Math.floor(Math.random() * directions.length)]
-        console.log(direction)
     }
 
     function spacePressed() {
@@ -114,8 +112,6 @@
                 correctAngle = quiz.northAngle
                 what = "compass direction"
             }
-            console.log("myAngle", myAngle)
-            console.log("correctAngle", correctAngle)
             let angleDiff =
                 (Math.abs(myAngle - correctAngle) / (2 * Math.PI)) * 360
             angleDiff = angleDiff % 360
@@ -396,13 +392,6 @@
         {#if chapter != "motivation" && chapter != "setup"}
             <Map bind:latitude bind:longitude />
         {/if}
-        <div>
-            Debug info:
-            {latitude}
-            {longitude}
-            <br />
-            {date.toISOString()}
-        </div>
     </div>
     <div id="sliders">
         {#if chapter == "time" || chapter == "date" || chapter == "cheatsheet" || chapter === "quiz1" || chapter === "quiz2" || chapter === "quiz3"}

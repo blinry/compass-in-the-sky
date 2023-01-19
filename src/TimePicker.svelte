@@ -18,45 +18,34 @@
 
     $: setDate(date, timezoneString)
     function setDate(date, timezoneString) {
-        console.log("setDate", date)
         let date2 = new Date(
             date.getTime() - timezoneDiff(timezoneString, date) * 60 * 60 * 1000
         )
         hour = date2.getHours() + date2.getMinutes() / 60
         year = dateToYearPercentage(date2)
-        console.log(date)
-        console.log(date2)
-        console.log(year)
     }
 
     //$: setHour(hour, timezoneString)
     //$: setYear(year, timezoneString)
     function setHour(hour, timezoneString) {
-        console.log("setHour", hour)
         let hour2 = hour + timezoneDiff(timezoneString, date)
-        console.log(hour2)
         date.setHours(Math.floor(hour2 % 24), (hour2 % 1) * 60, 0)
         date = date // trigger update
-        console.log(date)
     }
     function setYear(year, timezoneString) {
-        console.log("setYear", year)
         date = yearPercentageToDate(year)
         date.setHours(Math.floor(hour % 24), (hour % 1) * 60, 0)
         // shift back by timezoneDiff(timezoneString)
         date = new Date(
             date.getTime() + timezoneDiff(timezoneString, date) * 60 * 60 * 1000
         )
-        console.log(date)
     }
 
     function hourChanged(e) {
-        console.log("hourChanged", e.detail)
         setHour(parseFloat(e.detail), timezoneString)
     }
 
     function yearChanged(e) {
-        console.log("yearChanged", e.detail)
         setYear(parseFloat(e.detail), timezoneString)
     }
 </script>

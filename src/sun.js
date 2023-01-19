@@ -42,9 +42,6 @@ let lastLng = 0
 let lastDate = 0
 let cachedEntries = []
 export async function newQuiz(lat, lng, date = undefined) {
-    console.log(lat, lastLat)
-    console.log(lng, lastLng)
-    console.log(date, lastDate)
     if (
         lat !== lastLat ||
         lng !== lastLng ||
@@ -55,7 +52,6 @@ export async function newQuiz(lat, lng, date = undefined) {
         lastLat = lat
         lastLng = lng
         lastDate = date
-        console.log(cachedEntries.length)
 
         let jitter = 0
         lat += jitter * (Math.random() - 0.5)
@@ -66,15 +62,11 @@ export async function newQuiz(lat, lng, date = undefined) {
         let lat2 = Number(lat + size).toFixed(3)
         let lng2 = Number(lng + size).toFixed(3)
 
-        console.log(lat1)
-
         const url = `https://graph.mapillary.com/images?access_token=MLY|7569500839758282|7b3b3eced40c887cc2867488d6a50220&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url&bbox=${lng1},${lat1},${lng2},${lat2}&limit=100`
-        console.log(url)
 
         let response = await fetch(url)
         let json = await response.json()
 
-        //console.log(json)
         if (json.data.length == 0) {
             throw new Error("Didn't find Mapillary images in your area.")
         }
@@ -90,7 +82,6 @@ export async function newQuiz(lat, lng, date = undefined) {
                     new Date(entry.captured_at).getTime() - date.getTime()
                 )
                 let dayDiff = diff / 1000 / 60 / 60 / 24
-                console.log("diff", dayDiff)
                 return dayDiff % 365 < maxDayDiff
             })
             if (cachedEntries.length == 0) {
