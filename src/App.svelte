@@ -20,7 +20,7 @@
         "quiz3",
         "yay",
     ]
-    let chapter = chapters[0]
+    let chapter = chapters[5]
 
     let date = new Date()
 
@@ -46,9 +46,9 @@
                 myNewQuiz()
             }
         }
-        if (chapter == "time") {
-            date = new Date()
-        }
+        //if (chapter == "time") {
+        //    date = new Date()
+        //}
     }
 
     function nextChapter() {
@@ -396,6 +396,8 @@
         {#if chapter == "time" || chapter == "date" || chapter == "cheatsheet" || chapter === "quiz1" || chapter === "quiz2" || chapter === "quiz3"}
             <TimePicker
                 bind:date
+                {latitude}
+                {longitude}
                 hideYear={chapter == "time" ||
                     chapter == "quiz1" ||
                     chapter == "cheatsheet"}

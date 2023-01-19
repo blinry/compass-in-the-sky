@@ -1,4 +1,7 @@
 <script>
+    import {createEventDispatcher} from "svelte"
+    const dispatch = createEventDispatcher()
+
     export let hour
     export let disabled
 
@@ -14,7 +17,8 @@
 <div>
     <input
         type="range"
-        bind:value={hour}
+        value={hour}
+        on:input={(e) => dispatch("change", e.target.value)}
         min="0"
         max="24"
         step="0.01"

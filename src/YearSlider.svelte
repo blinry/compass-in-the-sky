@@ -1,5 +1,7 @@
 <script>
     import {yearPercentageToDate} from "./sun.js"
+    import {createEventDispatcher} from "svelte"
+    const dispatch = createEventDispatcher()
 
     export let year
     export let disabled = false
@@ -8,10 +10,11 @@
 <div>
     <input
         type="range"
-        bind:value={year}
+        value={year}
+        on:input={(e) => dispatch("change", e.target.value)}
         min="0"
         max="0.99999"
-        step="0.0001"
+        step="0.00001"
         {disabled}
     />
     <span class="big">

@@ -2,6 +2,7 @@
     import {onMount} from "svelte"
     import SunCalc from "./suncalc.js"
     import {calcAzimuth, timezoneDiff} from "./sun.js"
+    import findTZ from "tz-lookup"
 
     export let latitude
     export let longitude
@@ -9,7 +10,6 @@
 
     export let tilt = 0
 
-    export let timezoneString = "Europe/Berlin"
     export let level = 5
 
     export let northAngle = 0
@@ -22,6 +22,8 @@
     export let resetSun = false
 
     export let sunAngle = 0
+
+    $: timezoneString = findTZ(latitude, longitude)
 
     $: {
         if (!resetSun) {
@@ -57,11 +59,17 @@
 
         let month = date.getMonth() + 1
 
-        let diff = timezoneDiff(timezoneString)
+        let diff = timezoneDiff(timezoneString, date)
 
-        for (let hour2 = sunriseHour; hour2 <= sunsetHour; hour2 += 1) {
+        let offset = diff % 1
+
+        for (
+            let hour2 = sunriseHour + offset;
+            hour2 <= sunsetHour + offset + 0.01;
+            hour2 += 1
+        ) {
             markers.push({
-                label: "" + (Math.round(hour2 - diff) % 24),
+                label: "" + (Math.round(hour2 + offset - diff) % 24),
                 azimuth: calcAzimuth(date, latitude, longitude, month, hour2),
                 size: 0.4,
                 radius: 0.8,

@@ -25,8 +25,7 @@ export function changeTimezone(date, ianatz) {
     return new Date(date.getTime() - diff) // needs to substract
 }
 
-export function timezoneDiff(ianatz) {
-    var date = new Date()
+export function timezoneDiff(ianatz, date) {
     var invdate = new Date(
         date.toLocaleString("en-US", {
             timeZone: ianatz,
@@ -35,7 +34,7 @@ export function timezoneDiff(ianatz) {
 
     // then invdate will be 07:00 in Toronto
     // and the diff is 5 hours
-    return (date.getTime() - invdate.getTime()) / 60 / 60 / 1000
+    return (date.getTime() - invdate.getTime()) / 60.0 / 60.0 / 1000.0
 }
 
 let lastLat = 0
@@ -154,9 +153,9 @@ export function yearPercentageToDate(yearPercentage) {
 }
 
 export function dateToYearPercentage(date) {
-    const currentYear = new Date().getFullYear()
-    const secondsInCurrentYear =
-        (new Date(currentYear + 1, 0, 1) - new Date(currentYear, 0, 1)) / 1000
-    let seconds = (date - new Date(currentYear, 0, 1)) / 1000
-    return seconds / secondsInCurrentYear
+    const year = date.getFullYear()
+    const secondsInYear =
+        (new Date(year + 1, 0, 1) - new Date(year, 0, 1)) / 1000
+    let seconds = (date - new Date(year, 0, 1)) / 1000
+    return seconds / secondsInYear
 }
