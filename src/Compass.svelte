@@ -49,7 +49,6 @@
         }
 
         let times = SunCalc.getTimes(date, latitude, longitude)
-        console.log(times)
         let sunriseHour = times.sunrise.getHours()
         let sunsetHour = times.sunset.getHours()
 
@@ -89,7 +88,8 @@
     function cursorPoint(evt) {
         pt.x = evt.clientX
         pt.y = evt.clientY
-        return pt.matrixTransform(svg.getScreenCTM().inverse())
+        let loc = pt.matrixTransform(svg.getScreenCTM().inverse())
+        return loc
     }
 
     function handleMousemove(event) {
@@ -228,10 +228,10 @@
         user-select: none;
         -webkit-user-select: none;
         -moz-user-select: none;
+        transform: rotateX(var(--tilt));
+        background-color: rgba(255, 255, 255, 0.2);
     }
     div {
         display: inline-block;
-        background-color: rgba(255, 255, 255, 0.2);
-        transform: rotateX(var(--tilt));
     }
 </style>
