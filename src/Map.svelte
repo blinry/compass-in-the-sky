@@ -43,7 +43,9 @@
             let x = event.clientX - rect.left
             let y = event.clientY - rect.top
             latitude = -(y / (imgWidth / 2)) * 180 + 90
+            latitude = Math.max(-90, Math.min(90, latitude))
             longitude = (x / imgWidth) * 360 - 180
+            longitude = Math.max(-180, Math.min(180, longitude))
         }
     }
 </script>
@@ -66,6 +68,7 @@
         width: 100%;
         height: 100%;
         position: relative;
+        display: inline-block;
     }
     img {
         max-width: 100%;

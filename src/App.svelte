@@ -422,6 +422,9 @@
             />
         {:else if chapter == "setup"}
             <Map bind:latitude bind:longitude />
+            <div style="width: 300px">
+                <Map bind:latitude bind:longitude />
+            </div>
         {:else if chapter == "3d"}
             <Space {latitude} {longitude} />
         {:else if chapter == "time" || chapter === "date"}
@@ -475,7 +478,7 @@
     main {
         display: grid;
         grid-template-columns: 20rem 1fr;
-        grid-template-rows: 3rem 3rem 3fr 1fr;
+        grid-template-rows: 3rem 3rem 3fr 10rem;
         grid-template-areas:
             "header sliders"
             "nav sliders"
@@ -532,7 +535,5 @@
     #cheatsheet {
         grid-area: cheatsheet;
         background-color: #eee;
-        padding: 1rem;
-        overflow-y: auto;
     }
 </style>
