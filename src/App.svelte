@@ -20,12 +20,40 @@
         "quiz3",
         "yay",
     ]
-    let chapter = chapters[5]
+    let chapter = chapters[0]
 
-    let date = new Date()
+    let goodCount = {quiz0: 0, quiz1: 0, quiz2: 0, quiz3: 0}
 
-    let latitude = 0
-    let longitude = 0
+    function findPosition() {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            latitude = position.coords.latitude
+            longitude = position.coords.longitude
+        })
+    }
+
+    function testTask(task) {
+        console.log(task)
+        // Once true, always true.
+        if (task.done == true) {
+            return true
+        }
+        if (task.test) {
+            task.done = true
+            console.log(task)
+            return true
+        } else {
+            return false
+        }
+    }
+
+    let initialDate = new Date()
+    let date = new Date(initialDate.getTime())
+    let hour = 15
+
+    let initialLatitude = 40.7128
+    let initialLongitude = -74.006
+    let latitude = initialLatitude
+    let longitude = initialLongitude
 
     let northAngle = 0
 
@@ -37,19 +65,159 @@
     let showSolution = false
     let feedback = ""
 
+    let tasks = {}
+
+    let locationTask = {}
+    locationTask.text =
+        'Set your location, either by clicking on the map or by using "Find my position". You can always change this later.'
     $: {
-        if (typeof quiz == "undefined") {
-            if (chapter == "quiz1") {
-                myNewQuiz(true)
-            }
-            if (chapter == "quiz0" || chapter == "quiz3") {
-                myNewQuiz()
-            }
-        }
-        //if (chapter == "time") {
-        //    date = new Date()
-        //}
+        locationTask.test =
+            latitude !== initialLatitude || longitude !== initialLongitude
+        tasks = tasks // -.-
     }
+
+    tasks["setup"] = [locationTask]
+
+    let sunDragTask = {}
+    sunDragTask.text =
+        "Drag the sun in the diagram to match the photo. For example, if you think the sun is behind you, drag the yellow icon to the bottom. You can <b>also use you arrow keys!</b>"
+
+    $: {
+        sunDragTask.test = mySunAngle !== 0
+        tasks = tasks
+    }
+
+    let submitTask = {}
+    submitTask.text = 'Click on "Submit guess" to show the correct answer'
+    $: {
+        submitTask.test = showSolution
+        tasks = tasks
+    }
+
+    let quiz0Task = {}
+    quiz0Task.text =
+        "Get a rating of 🤯 or 😎 2 times, or until you think you've figured it out!"
+    $: {
+        quiz0Task.test = goodCount.quiz0 >= 2
+        tasks = tasks
+    }
+
+    tasks["quiz0"] = [sunDragTask, submitTask, quiz0Task]
+
+    let eightTask = {}
+    eightTask.text = "Where is the sun in the morning, at 8:00?"
+    $: {
+        eightTask.test = Math.abs(hour - 8) < 0.1
+        tasks = tasks
+    }
+
+    let noonTask = {}
+    noonTask.text = "Where is the sun at 12:00 (noon)?"
+    $: {
+        noonTask.test = Math.abs(hour - 12) < 0.1
+        tasks = tasks
+    }
+
+    let eighteenTask = {}
+    eighteenTask.text = "Where is the sun in the evening, at 18:00 (6pm)?"
+    $: {
+        eighteenTask.test = Math.abs(hour - 18) < 0.1
+        tasks = tasks
+    }
+
+    let midnightTask = {}
+    midnightTask.text =
+        "And where would the sun be at midnight? The numbers in the diagram tell you at which hours the sun is up!"
+    $: {
+        console.log(hour)
+        midnightTask.test = Math.abs((hour - 0) % 24) < 0.1
+        tasks = tasks
+    }
+
+    tasks["time"] = [eightTask, noonTask, eighteenTask, midnightTask]
+
+    let sunDragTask1 = {}
+    sunDragTask1.text =
+        "Drag the sun in the diagram so that it aligns with the photo."
+    $: {
+        sunDragTask1.test = mySunAngle !== 0
+        tasks = tasks
+    }
+
+    let northDragTask1 = {}
+    northDragTask1.text =
+        "Drag the compass directions so that it aligns with the sun at the time displayed above. For example, in the morning, the sun is usually in the east!"
+    $: {
+        northDragTask1.test = myNorthAngle !== 0
+        tasks = tasks
+    }
+
+    let submitTask1 = {}
+    submitTask1.text = 'Click on "Submit guess" to show the correct answer'
+    $: {
+        submitTask1.test = showSolution
+        tasks = tasks
+    }
+
+    let quiz1Task = {}
+    quiz1Task.text =
+        "Get a rating of 🤯 or 😎 2 times, or until you think you've figured it out!"
+    $: {
+        quiz1Task.test = goodCount.quiz1 >= 2
+        tasks = tasks
+    }
+
+    tasks["quiz1"] = [sunDragTask1, northDragTask1, submitTask1, quiz1Task]
+
+    let springTask = {}
+    springTask.text = "In March?"
+    $: {
+        springTask.test = date.getMonth() == 2
+        tasks = tasks
+    }
+
+    let summerTask = {}
+    summerTask.text = "In June?"
+    $: {
+        summerTask.test = date.getMonth() == 5
+        tasks = tasks
+    }
+
+    let autumnTask = {}
+    autumnTask.text = "In September?"
+    $: {
+        autumnTask.test = date.getMonth() == 8
+        tasks = tasks
+    }
+
+    let winterTask = {}
+    winterTask.text = "In December?"
+    $: {
+        winterTask.test = date.getMonth() == 11
+        tasks = tasks
+    }
+
+    tasks["date"] = [springTask, summerTask, autumnTask, winterTask]
+
+    let quiz2Task = {}
+    quiz2Task.text =
+        "Get a rating of 🤯 or 😎 2 times, or until you think you've figured it out!"
+    $: {
+        quiz2Task.test = goodCount.quiz2 >= 2
+        tasks = tasks
+    }
+
+    tasks["quiz2"] = [quiz2Task]
+
+    let quiz3Task = {}
+    quiz3Task.text =
+        "Get a rating of 🤯 or 😎 2 times! One you've figured this out, I have nothing more to teach you!"
+    $: {
+        quiz3Task.test = goodCount.quiz3 >= 2
+        tasks = tasks
+    }
+
+    tasks["quiz3"] = [quiz3Task]
 
     function nextChapter() {
         chapter = chapters[(chapters.indexOf(chapter) + 1) % chapters.length]
@@ -67,15 +235,8 @@
         feedback = ""
     }
 
-    function findPosition() {
-        navigator.geolocation.getCurrentPosition(function (position) {
-            latitude = position.coords.latitude
-            longitude = position.coords.longitude
-        })
-    }
-
     onMount(async () => {
-        findPosition()
+        //findPosition()
     })
 
     async function myNewQuiz(simple = false) {
@@ -96,8 +257,30 @@
         direction = directions[Math.floor(Math.random() * directions.length)]
     }
 
+    $: {
+        if (typeof quiz == "undefined") {
+            if (chapter == "quiz1") {
+                myNewQuiz(true)
+            }
+            if (
+                chapter == "quiz0" ||
+                chapter == "quiz2" ||
+                chapter == "quiz3"
+            ) {
+                myNewQuiz()
+            }
+        }
+        if (chapter == "time") {
+            let currentMonth = new Date().getMonth()
+            if (date.getMonth() != currentMonth) {
+                initialDate = new Date()
+                date = new Date(initialDate.getTime())
+            }
+        }
+    }
+
     function spacePressed() {
-        if (showSolution) {
+        if (showSolution || typeof quiz == "undefined") {
             myNewQuiz()
         } else {
             showSolution = true
@@ -137,6 +320,10 @@
                     feedback += " " + ratings[i][1]
                     break
                 }
+            }
+
+            if (angleDiff <= 45) {
+                goodCount[chapter] += 1
             }
         }
     }
@@ -199,7 +386,8 @@
 
 <main>
     <div id="header" on:click={() => (chapter = "motivation")}>
-        The Solar Compass ☀️
+        Compass in the Sky ☀️
+        <div id="subtitle">A Game of Solar Orientation</div>
     </div>
     <div id="nav">
         {#if chapter != chapters[0]}
@@ -207,7 +395,9 @@
         {/if}
         <span>{chapter}</span>
         {#if chapter != chapters[chapters.length - 1]}
-            <button on:click={nextChapter}>&gt;</button>
+            {#if true || typeof tasks[chapter] === "undefined" || tasks[chapter].filter((task) => !testTask(task)).length == 0}
+                <button on:click={nextChapter}>&gt;</button>
+            {/if}
         {/if}
     </div>
     <div id="content">
@@ -223,20 +413,24 @@
                 >. You will get an intuitive sense on where to go, without
                 having to rely on maps or your phone!
             </p>
+            <p>Click the arrow above to get started!</p>
+            <hr />
+            <p>
+                If you know the technique, and would like to practice, click
+                here:
+            </p>
+            <button
+                on:click={() => {
+                    findPosition()
+                    chapter = "quiz3"
+                }}>Jump to training</button
+            >
         {:else if chapter === "setup"}
             <p>
-                The technique I'm about to teach you depends on where on Earth
-                you are. I've already asked your browser to give me an
-                estimation.
+                The technique I'll teach you depends on <b
+                    >where on Earth you are</b
+                >.
             </p>
-
-            <p>
-                Does this seem right? You can also <b
-                    >set a position by clicking on the map</b
-                >. This doesn't need to be precise.
-            </p>
-
-            <button on:click={findPosition}>Find my position</button>
         {:else if chapter === "3d"}
             <p>
                 The earth rotates around itself every 24 hours. In addition, the
@@ -247,39 +441,29 @@
             </p>
         {:else if chapter === "time"}
             <p>
-                Here's a diagram of how the sun moves over the sky today. Drag
-                the time slider below to see it move!
+                Well done! If we know how late it is, we can use the sun's
+                position to find the compass direction!
             </p>
             <p>
-                The numbers in the diagram tell you where the sun is at that
-                hour. You only see the hours where the sun is in the sky – we
-                can't use this technique at night.
+                Here's a diagram of how the sun moves over the sky today. <b
+                    >Drag the time slider above</b
+                > to see it move!
             </p>
-            <p>
-                This is a pattern you need to familiarize yourself with. Take
-                some time to memorize it: where is the sun in the morning? In
-                the evening? At noon?
-            </p>
+            <p>Familiarize yourself with this pattern:</p>
         {:else if chapter === "date"}
             <p>
-                Here's a trick to make you more precise: Depending on the time
-                of year, the pattern you've seen will change! There's a new
-                slider below, which you can use to set the date! Try it!
-            </p>
-            <p>
-                No matter where on Earth you are, the sun will always rise
-                approximately in the east and set in the west. Around noon, the
-                sun might be in the north, in the south, or overhead.
+                So far, we've only looked at the current month. But <b
+                    >depending on the time of year, the pattern you've seen will
+                    change</b
+                >! There's a new slider above, which you can use to set the
+                date!
             </p>
             <p>
                 Does your country have daylight savings time? If so, you'll
                 notice a sudden jump when daylight savings time starts and ends.
                 Try to find it!
             </p>
-            <p>
-                No need to memorize all of this, we've prepared a handy cheat
-                sheet for you in the next section!
-            </p>
+            <p>What does the diagram look like:</p>
         {:else if chapter === "cheatsheet"}
             <p>
                 To keep things simple, focus on this cheat sheet, which shows
@@ -287,62 +471,51 @@
             </p>
             <ul>
                 <li>
-                    The sun's path in <b>June</b> ("Summer" in the northern hemisphere)
+                    <b>June</b> ("Summer" in the northern hemisphere)
                 </li>
                 <li>
-                    The sun's path in <b>April and September</b> is very similar,
-                    so here we've combined them into one diagram
+                    <b>March and September</b>: The path is very similar, so
+                    here I've combined them into one diagram
                 </li>
                 <li>
-                    The sun's path in <b>December</b> ("Winter" in the northern hemisphere)
+                    <b>December</b> ("Winter" in the northern hemisphere)
                 </li>
             </ul>
             <p>Try to roughly memorize how the angles change over the year!</p>
         {:else if chapter === "quiz0"}
             <p>
-                The first skill that you need is to figure out in which
-                direction the sun is.
+                The first skill that you need is to figure out <b
+                    >in which direction the sun is</b
+                >.
             </p>
             <p>
-                Look at the photo, and then
-                <b>drag the sun in the diagram to match the photo</b>. You can
-                also use your arrow keys. For example, if you think the sun is
-                behind you, drag the yellow icon to the bottom.
-            </p>
-            <p>
-                Sometimes, this can be tricky. Give it a try nevertheless! If
-                the sky is cloudy, you often can guess the sun's position by the
-                brightest side of a tree or building!
+                Sometimes, this can be tricky. Do your best! If the sky is
+                cloudy, you often can guess the sun's position by the bright
+                side of a tree or building!
             </p>
         {:else if chapter === "quiz1"}
             <p>
-                The second skill is to align the compass directions with the
-                sun, depending on the time.
+                The second skill is to <b
+                    >align the compass directions with the sun</b
+                >, depending on the time.
             </p>
-            <ol>
-                <li>
-                    Drag the sun in the diagram so that it aligns with the
-                    photo.
-                </li>
-                <li>
-                    Drag the compass directions so that it aligns with the sun
-                    at the specified time. For example, in the morning, the sun
-                    is often in the east!
-                </li>
-            </ol>
-            <p>All photos were taken this month.</p>
+
+            <p>All photos were taken in your current month!</p>
         {:else if chapter === "quiz2"}
             <p>
-                To practice this, we will now give you photos from all over the
-                year! Again, drag the sun and the compass, and learn to get a
+                To practice this, we will now give you photos <b
+                    >from all over the year</b
+                >! Again, drag the sun and the compass, and learn to get a
                 feeling of how the angles change depending on the date.
             </p>
         {:else if chapter === "quiz3"}
-            <p>The fourth and final skill is to do it all in your head!</p>
             <p>
-                When you want to use the sun compass in the real world, you
-                won't have handy diagrams to guide you, so this is the ultimate
-                test of your abilities!
+                The fourth and final skill is to <b>do it all in your head</b>!
+            </p>
+            <p>
+                When you want to use this technique in the real world, you won't
+                have handy diagrams to guide you, so this is the ultimate test
+                of your abilities!
             </p>
             <!--<p>Here's how to do it:</p>
             <ol>
@@ -362,9 +535,10 @@
             </ol>
             -->
             <p>
-                Look at the photo, and try to figure out where {direction} is! Then,
-                drag the compass or use your arrow keys. Press space to show the
-                solution.
+                Look at the photo, and try to <b
+                    >figure out where {direction} is</b
+                >! Then, drag the compass or use your arrow keys. Press space to
+                show the solution.
             </p>
         {:else if chapter === "yay"}
             <p>You did it! You learned a new skill!</p>
@@ -374,30 +548,70 @@
                 direction you're facing currently?
             </p>
             <p>
-                If you'd like to drill this skill later, come back to the last
-                quiz and train it a bit more!
+                If you'd like to practice this skill later, theres'a button on
+                the start page that leads directly to the last quiz!
             </p>
-            <p>Congrats again!</p>
+            <p>If you liked this project, you can:</p>
+            <ul>
+                <li>
+                    Subscribe to <a href="https://tinyletter.com/blinry"
+                        >my newsletter</a
+                    >
+                </li>
+                <li>
+                    Follow me in <a href="https://chaos.social/@blinry"
+                        >the fediverse</a
+                    >
+                </li>
+                <li>
+                    Try other games on <a href="https://blinry.org"
+                        >my website</a
+                    >
+                </li>
+                <li>
+                    Join my supporters <a href="https://patreon.com/blinry"
+                        >on Patreon</a
+                    >
+                </li>
+            </ul>
+            <p>Thanks,<br />blinry</p>
+        {/if}
+
+        {#if typeof tasks[chapter] !== "undefined"}
+            <ul class="checklist">
+                {#each tasks[chapter] as task}
+                    <li>
+                        {#if testTask(task)}
+                            ☑️
+                        {:else}
+                            ☐
+                        {/if}
+                        {@html task.text}
+                    </li>
+                {/each}
+            </ul>
         {/if}
 
         {#if chapter === "quiz0" || chapter === "quiz1" || chapter === "quiz2" || chapter === "quiz3"}
-            <button on:click={spacePressed}>
-                {#if showSolution}
-                    New photo
-                {:else}
-                    Show solution
-                {/if}
-                (Space)
-            </button>
-            <br />
-            <b>{feedback}</b>
+            <p>
+                <button on:click={spacePressed}>
+                    {#if showSolution || typeof quiz === "undefined"}
+                        New photo
+                    {:else}
+                        Submit guess
+                    {/if}
+                    (Space)
+                </button>
+            </p>
+
+            <p><b>{feedback}</b></p>
         {/if}
     </div>
-    <div id="cheatsheet">
-        {#if chapter != "motivation" && chapter != "setup"}
+    {#if chapter != "motivation" && chapter != "setup"}
+        <div id="cheatsheet">
             <Map bind:latitude bind:longitude />
-        {/if}
-    </div>
+        </div>
+    {/if}
     <div id="sliders">
         {#if chapter == "time" || chapter == "date" || chapter == "cheatsheet" || chapter === "quiz1" || chapter === "quiz2" || chapter === "quiz3"}
             <TimePicker
@@ -411,6 +625,7 @@
                     chapter == "quiz1" ||
                     chapter == "quiz2" ||
                     chapter == "quiz3"}
+                bind:hour
             />
         {/if}
     </div>
@@ -422,9 +637,6 @@
             />
         {:else if chapter == "setup"}
             <Map bind:latitude bind:longitude />
-            <div style="width: 300px">
-                <Map bind:latitude bind:longitude />
-            </div>
         {:else if chapter == "3d"}
             <Space {latitude} {longitude} />
         {:else if chapter == "time" || chapter === "date"}
@@ -444,19 +656,23 @@
                 style="width: 100%; height: 100%; object-fit: cover;"
             />
             <div id="compass">
-                <Compass
-                    {latitude}
-                    {longitude}
-                    {date}
-                    bind:sunAngle={mySunAngle}
-                    bind:northAngle={myNorthAngle}
-                    northInteractive={true}
-                    resetSun={true}
-                    showHints={false}
-                    tilt={60}
-                    showDirections={chapter != "quiz0"}
-                    showSun={chapter != "quiz3"}
-                />
+                {#if quiz?.image}
+                    <Compass
+                        {latitude}
+                        {longitude}
+                        {date}
+                        bind:sunAngle={mySunAngle}
+                        bind:northAngle={myNorthAngle}
+                        northInteractive={true}
+                        resetSun={true}
+                        showHints={false}
+                        tilt={60}
+                        showDirections={chapter != "quiz0"}
+                        showSun={chapter != "quiz3"}
+                        onlyLabel={chapter === "quiz3" ? direction : null}
+                        label="Your guess"
+                    />
+                {/if}
                 {#if showSolution}
                     <Compass
                         {latitude}
@@ -467,6 +683,7 @@
                         northInteractive={false}
                         tilt={60}
                         showDirections={chapter != "quiz0"}
+                        label="Solution"
                     />
                 {/if}
             </div>
@@ -478,10 +695,10 @@
     main {
         display: grid;
         grid-template-columns: 20rem 1fr;
-        grid-template-rows: 3rem 3rem 3fr 10rem;
+        grid-template-rows: 5rem 3rem 3fr 10rem;
         grid-template-areas:
             "header sliders"
-            "nav sliders"
+            "nav big"
             "content big"
             "cheatsheet big";
         height: 100vh;
@@ -535,5 +752,12 @@
     #cheatsheet {
         grid-area: cheatsheet;
         background-color: #eee;
+    }
+    .checklist {
+        list-style-type: none;
+    }
+    #subtitle {
+        font-size: 80%;
+        color: #666;
     }
 </style>

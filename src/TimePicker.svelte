@@ -14,7 +14,7 @@
 
     $: timezoneString = findTZ(latitude, longitude)
 
-    let hour, year
+    export let hour, year
 
     $: setDate(date, timezoneString)
     function setDate(date, timezoneString) {

@@ -9,6 +9,7 @@
     export let date
 
     export let tilt = 0
+    export let label = ""
 
     export let level = 5
 
@@ -23,6 +24,8 @@
 
     export let sunAngle = 0
 
+    export let onlyLabel = null
+
     $: timezoneString = findTZ(latitude, longitude)
 
     $: {
@@ -36,10 +39,16 @@
     $: {
         markers = []
 
-        markers.push({label: "N", size: 1, radius: 1, azimuth: 0})
-        if (level >= 4 || level <= 2) {
+        if (onlyLabel === null || onlyLabel === "N") {
+            markers.push({label: "N", size: 1, radius: 1, azimuth: 0})
+        }
+        if (onlyLabel === null || onlyLabel === "E") {
             markers.push({label: "E", size: 1, radius: 1, azimuth: Math.PI / 2})
+        }
+        if (onlyLabel === null || onlyLabel === "S") {
             markers.push({label: "S", size: 1, radius: 1, azimuth: Math.PI})
+        }
+        if (onlyLabel === null || onlyLabel === "W") {
             markers.push({
                 label: "W",
                 size: 1,
@@ -222,6 +231,8 @@
             />
         {/if}
     </svg>
+    <br />
+    <div id="label">{label}</div>
 </div>
 
 <style>
@@ -236,5 +247,14 @@
     }
     div {
         display: inline-block;
+    }
+    #label {
+        font-size: 150%;
+        position: relative;
+        bottom: 6rem;
+        text-align: center;
+        width: 25rem;
+        color: white;
+        text-shadow: 0 0 0.3rem black;
     }
 </style>

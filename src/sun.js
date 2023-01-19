@@ -62,15 +62,21 @@ export async function newQuiz(lat, lng, date = undefined) {
         let lat2 = Number(lat + size).toFixed(3)
         let lng2 = Number(lng + size).toFixed(3)
 
-        const url = `https://graph.mapillary.com/images?access_token=MLY|7569500839758282|7b3b3eced40c887cc2867488d6a50220&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url&bbox=${lng1},${lat1},${lng2},${lat2}&limit=100`
+        const url = `https://graph.mapillary.com/images?access_token=MLY|7569500839758282|7b3b3eced40c887cc2867488d6a50220&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url&bbox=${lng1},${lat1},${lng2},${lat2}&limit=10`
 
-        let response = await fetch(url)
+        try {
+            var response = await fetch(url)
+        } catch (e) {
+            alert(e)
+        }
         let json = await response.json()
 
         if (json.data.length == 0) {
             alert(
                 "We couldn't find any Mapillary photos for your location. Please pick another area."
             )
+            cachedEntries = []
+            return undefined
         }
 
         if (typeof date === "undefined") {
@@ -90,6 +96,8 @@ export async function newQuiz(lat, lng, date = undefined) {
                 alert(
                     "We couldn't find any Mapillary photos for your location. Please pick another area."
                 )
+                cachedEntries = []
+                return undefined
             }
         }
     }

@@ -18,3 +18,12 @@ ol {
     margin-left: 1em;
     margin-bottom: 1em;
 }
+
+hr {
+    margin-bottom: 1em;
+}
+
+img {
+    display: block;
+    margin-bottom: 0;
+}

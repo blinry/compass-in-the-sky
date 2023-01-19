@@ -48,6 +48,13 @@
             longitude = Math.max(-180, Math.min(180, longitude))
         }
     }
+
+    function findPosition() {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            latitude = position.coords.latitude
+            longitude = position.coords.longitude
+        })
+    }
 </script>
 
 <div
@@ -61,12 +68,12 @@
     <img src="/map.jpg" />
     <div id="marker" style="top: {top}px; left: {left}px;" />
     <!--<div id="sun" style="top: {sunTop}px; left: {sunLeft}px;" />-->
+    <button on:click={findPosition}>Find my position</button>
 </div>
 
 <style>
     #container {
         width: 100%;
-        height: 100%;
         position: relative;
         display: inline-block;
     }
@@ -93,4 +100,11 @@
         background: yellow;
         position: absolute;
     }*/
+    button {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        font-size: 1rem;
+        padding: 0.2rem;
+    }
 </style>

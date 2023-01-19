@@ -26,7 +26,7 @@
             if (i == 5) {
                 description = "June"
             } else if (i == 8) {
-                description = "April / September"
+                description = "March / September"
             } else if (i == 11) {
                 description = "December"
             }
@@ -60,8 +60,8 @@
                     {longitude}
                     interactive={false}
                     showSun={true}
+                    label={description}
                 />
-                <div>{description}</div>
             </div>
         {/each}
     </div>
