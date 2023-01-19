@@ -392,6 +392,18 @@
             <b>{feedback}</b>
         {/if}
     </div>
+    <div id="cheatsheet">
+        {#if chapter != "motivation" && chapter != "setup"}
+            <Map bind:latitude bind:longitude />
+        {/if}
+        <div>
+            Debug info:
+            {latitude}
+            {longitude}
+            <br />
+            {date.toISOString()}
+        </div>
+    </div>
     <div id="sliders">
         {#if chapter == "time" || chapter == "date" || chapter == "cheatsheet" || chapter === "quiz1" || chapter === "quiz2" || chapter === "quiz3"}
             <TimePicker
@@ -407,16 +419,6 @@
                     chapter == "quiz3"}
             />
         {/if}
-        {#if chapter != "motivation" && chapter != "setup"}
-            <Map bind:latitude bind:longitude />
-        {/if}
-        <div>
-            Debug info:
-            {latitude}
-            {longitude}
-            <br />
-            {date.toISOString()}
-        </div>
     </div>
     <div id="big">
         {#if chapter == "motivation"}
@@ -481,10 +483,10 @@
         grid-template-columns: 20rem 1fr;
         grid-template-rows: 3rem 3rem 3fr 1fr;
         grid-template-areas:
-            "header big"
-            "nav big"
+            "header sliders"
+            "nav sliders"
             "content big"
-            "sliders big";
+            "cheatsheet big";
         height: 100vh;
         gap: 5px;
     }
@@ -532,5 +534,11 @@
         position: absolute;
         bottom: 0;
         left: 0;
+    }
+    #cheatsheet {
+        grid-area: cheatsheet;
+        background-color: #eee;
+        padding: 1rem;
+        overflow-y: auto;
     }
 </style>

@@ -231,8 +231,7 @@
     }
     div {
         display: inline-block;
-        /*background-color: white;
-        opacity: 0.5;*/
+        background-color: rgba(255, 255, 255, 0.2);
         transform: rotateX(var(--tilt));
     }
 </style>

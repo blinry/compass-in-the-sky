@@ -33,7 +33,7 @@
         flex: 1;
     }
     span {
-        width: 7rem;
+        width: 9rem;
         padding-left: 1rem;
     }
 </style>
