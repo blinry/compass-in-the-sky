@@ -53,6 +53,8 @@
 
     function nextChapter() {
         chapter = chapters[(chapters.indexOf(chapter) + 1) % chapters.length]
+        showSolution = false
+        feedback = ""
     }
 
     function prevChapter() {
@@ -61,6 +63,8 @@
                 (chapters.indexOf(chapter) + chapters.length - 1) %
                     chapters.length
             ]
+        showSolution = false
+        feedback = ""
     }
 
     function findPosition() {
@@ -77,6 +81,7 @@
     async function myNewQuiz(simple = false) {
         showSolution = false
         feedback = ""
+        quiz = undefined
         if (simple) {
             quiz = await newQuiz(latitude, longitude, date)
         } else {

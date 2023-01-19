@@ -56,7 +56,7 @@ export async function newQuiz(lat, lng, date = undefined) {
         let jitter = 0
         lat += jitter * (Math.random() - 0.5)
         lng += jitter * (Math.random() - 0.5)
-        let size = 0.01
+        let size = 0.1
         let lat1 = Number(lat - size).toFixed(3)
         let lng1 = Number(lng - size).toFixed(3)
         let lat2 = Number(lat + size).toFixed(3)
@@ -68,7 +68,9 @@ export async function newQuiz(lat, lng, date = undefined) {
         let json = await response.json()
 
         if (json.data.length == 0) {
-            throw new Error("Didn't find Mapillary images in your area.")
+            alert(
+                "We couldn't find any Mapillary photos for your location. Please pick another area."
+            )
         }
 
         if (typeof date === "undefined") {
@@ -85,8 +87,8 @@ export async function newQuiz(lat, lng, date = undefined) {
                 return dayDiff % 365 < maxDayDiff
             })
             if (cachedEntries.length == 0) {
-                throw new Error(
-                    "Didn't find Mapillary images sufficiently close to your day of year."
+                alert(
+                    "We couldn't find any Mapillary photos for your location. Please pick another area."
                 )
             }
         }
