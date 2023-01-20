@@ -20,6 +20,18 @@
         "quiz3",
         "yay",
     ]
+    let titles = [
+        "What you will learn",
+        "Where are you?",
+        "Where is the sun?",
+        "The sun's path",
+        "Where is north?",
+        "The full year",
+        "Cheat sheet",
+        "Practice the year",
+        "Final skill",
+        "Congratulations!",
+    ]
     let chapter = chapters[0]
 
     let goodCount = {quiz0: 0, quiz1: 0, quiz2: 0, quiz3: 0}
@@ -88,7 +100,8 @@
     }
 
     let submitTask = {}
-    submitTask.text = 'Click on "Submit guess" to show the correct answer'
+    submitTask.text =
+        'Click on "Submit guess" to show the correct answer. <b>You can also press the space key.</b>'
     $: {
         submitTask.test = showSolution
         tasks = tasks
@@ -390,15 +403,21 @@
         <div id="subtitle">A Game of Solar Orientation</div>
     </div>
     <div id="nav">
-        {#if chapter != chapters[0]}
-            <button on:click={prevChapter}>&lt;</button>
-        {/if}
-        <span>{chapter}</span>
-        {#if chapter != chapters[chapters.length - 1]}
-            {#if true || typeof tasks[chapter] === "undefined" || tasks[chapter].filter((task) => !testTask(task)).length == 0}
-                <button on:click={nextChapter}>&gt;</button>
+        <progress value={chapters.indexOf(chapter)} max={chapters.length - 1} />
+        <div id="navstuff">
+            {#if chapter != chapters[0]}
+                <button on:click={prevChapter}>❮</button>
             {/if}
-        {/if}
+            <span><b>{titles[chapters.indexOf(chapter)]}</b></span>
+            {#if chapter != chapters[chapters.length - 1]}
+                <button
+                    on:click={nextChapter}
+                    class:highlighted={typeof tasks[chapter] === "undefined" ||
+                        tasks[chapter].filter((task) => !testTask(task))
+                            .length == 0}>❯</button
+                >
+            {/if}
+        </div>
     </div>
     <div id="content">
         {#if chapter === "motivation"}
@@ -441,7 +460,7 @@
             </p>
         {:else if chapter === "time"}
             <p>
-                Well done! If we know how late it is, we can use the sun's
+                Well done! If you know what time it is, you can use the sun's
                 position to find the compass direction!
             </p>
             <p>
@@ -503,10 +522,10 @@
             <p>All photos were taken in your current month!</p>
         {:else if chapter === "quiz2"}
             <p>
-                To practice this, we will now give you photos <b
+                To practice this, I will now show you photos <b
                     >from all over the year</b
-                >! Again, drag the sun and the compass, and learn to get a
-                feeling of how the angles change depending on the date.
+                >! Again, drag the sun and the compass, and try to get a feeling
+                of how the angles change depending on the date.
             </p>
         {:else if chapter === "quiz3"}
             <p>
@@ -608,14 +627,13 @@
                     {:else}
                         Submit guess
                     {/if}
-                    (Space)
                 </button>
             </p>
 
             <p><b>{feedback}</b></p>
         {/if}
     </div>
-    {#if chapter != "motivation" && chapter != "setup"}
+    {#if chapter != "motivation" && chapter != "setup" && chapter != "yay"}
         <div id="cheatsheet">
             <Map bind:latitude bind:longitude />
         </div>
@@ -655,7 +673,7 @@
             </div>
         {/if}
 
-        {#if chapter == "motivation"}
+        {#if chapter == "motivation" || chapter == "yay"}
             <div
                 class="fullscreen"
                 style="background-image: url(forest.jpg); background-size: cover; background-position: center center; width: 100%; height: 100%"
@@ -720,7 +738,7 @@
     main {
         display: grid;
         grid-template-columns: 20rem 1fr;
-        grid-template-rows: 5.5rem 3rem 3fr 10rem;
+        grid-template-rows: 5.5rem 4rem 3fr 10rem;
         grid-template-areas:
             "header big"
             "nav big"
@@ -742,12 +760,34 @@
     #nav {
         grid-area: nav;
         background-color: #eee;
+    }
+    #nav progress {
+        width: calc(100% - 1rem);
+        margin: 0 0.5rem 0.2rem 0.5rem;
+    }
+    #navstuff {
         display: flex;
     }
     #nav span {
         flex: 1;
         padding: 0.5rem;
         text-align: center;
+        font-size: 110%;
+    }
+    #nav button {
+        border: none;
+        cursor: pointer;
+    }
+    #nav button:hover {
+        background-color: #ddd;
+    }
+    #nav button.highlighted {
+        background: green;
+        color: white;
+    }
+    #nav button.highlighted:hover {
+        background: darkgreen;
+        color: white;
     }
     #nav button {
         width: 3rem;

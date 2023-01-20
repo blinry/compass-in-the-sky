@@ -65,7 +65,7 @@
     on:mousemove={handleMousemove}
     on:mouseup={handleMouseup}
 >
-    <img src="/map.jpg" />
+    <img src="/map.jpg" draggable="false" />
     <div id="marker" style="top: {top}px; left: {left}px;" />
     <!--<div id="sun" style="top: {sunTop}px; left: {sunLeft}px;" />-->
     <button on:click={findPosition}>Find my position</button>

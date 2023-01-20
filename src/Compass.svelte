@@ -232,7 +232,9 @@
         {/if}
     </svg>
     <br />
-    <div id="label">{label}</div>
+    <div id="label" style="--bottom-margin: {tilt == 0 ? '0' : '6rem'}">
+        {label}
+    </div>
 </div>
 
 <style>
@@ -251,7 +253,7 @@
     #label {
         font-size: 150%;
         position: relative;
-        bottom: 6rem;
+        bottom: var(--bottom-margin);
         text-align: center;
         width: 25rem;
         color: black;
