@@ -559,7 +559,7 @@
         {:else if chapter === "yay"}
             <p>You did it! You learned a new skill!</p>
             <p>
-                I'd love to feedback on this tool! <b
+                I'd love to get your feedback on this tool! <b
                     ><a
                         href="https://docs.google.com/forms/d/e/1FAIpQLScDaWpryKoinLP0eKOR660HDNvBgvmv6Sbo4k5hNzXDoJ2MoA/viewform"
                         >Click here to open a feedback form!</a
@@ -567,13 +567,18 @@
                 >
             </p>
             <p>
+                This project is open source! You can find the source code <a
+                    href="https://github.com/blinry/compass-in-the-sky">here</a
+                >.
+            </p>
+            <p>
                 When you look around you right now, can you tell the sun's
                 direction? Can you use this technique to figure out which
                 direction you're facing currently?
             </p>
             <p>
-                If you'd like to practice this skill later, theres'a button on
-                the start page that leads directly to the last quiz!
+                If you'd like to <b>practice this skill later</b>, theres'a
+                button on the start page that leads directly to the last quiz!
             </p>
             <p>If you liked this project, you can:</p>
             <ul>
