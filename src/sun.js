@@ -46,7 +46,7 @@ export async function newQuiz(lat, lng, date = undefined) {
         lat !== lastLat ||
         lng !== lastLng ||
         date !== lastDate ||
-        cachedEntries.lengt == 0
+        cachedEntries.length == 0
     ) {
         // We need to send a new query.
         lastLat = lat
@@ -62,7 +62,7 @@ export async function newQuiz(lat, lng, date = undefined) {
         let lat2 = Number(lat + size).toFixed(3)
         let lng2 = Number(lng + size).toFixed(3)
 
-        const url = `https://graph.mapillary.com/images?access_token=MLY|7569500839758282|7b3b3eced40c887cc2867488d6a50220&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url&bbox=${lng1},${lat1},${lng2},${lat2}&limit=10`
+        const url = `https://graph.mapillary.com/images?access_token=MLY|7569500839758282|7b3b3eced40c887cc2867488d6a50220&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url,camera_type&bbox=${lng1},${lat1},${lng2},${lat2}&limit=30`
 
         try {
             var response = await fetch(url)
@@ -79,11 +79,15 @@ export async function newQuiz(lat, lng, date = undefined) {
             return undefined
         }
 
+        // Remove 360 degree photos.
+        cachedEntries = json.data.filter((entry) => {
+            return entry.camera_type === "perspective"
+        })
+
         if (typeof date === "undefined") {
-            // We can pick a random one.
-            cachedEntries = json.data
+            // We can pick a random one, leave as-is.
         } else {
-            cachedEntries = json.data.filter((entry) => {
+            cachedEntries = cachedEntries.filter((entry) => {
                 // Make sure that captured_at is no more than a specified number days away from date.
                 const maxDayDiff = 45
                 let diff = Math.abs(
