@@ -754,7 +754,7 @@
     main {
         display: grid;
         grid-template-columns: 20rem 1fr;
-        grid-template-rows: 5.5rem 4rem 3fr 10rem;
+        grid-template-rows: 5.5rem 4.5rem 3fr 10rem;
         grid-template-areas:
             "header big"
             "nav big"
@@ -762,6 +762,26 @@
             "cheatsheet big";
         height: 100vh;
         gap: 5px;
+    }
+    @media (max-width: 1000px) {
+        main {
+            grid-template-columns: 1fr;
+            grid-template-rows: 8rem 5rem 1fr 1fr;
+            grid-template-areas:
+                "header"
+                "nav"
+                "content"
+                "big";
+        }
+        #subtitle {
+            display: none;
+        }
+        #cheatsheet {
+            display: none;
+        }
+        #nav span {
+            font-size: 1.7rem;
+        }
     }
     #header {
         grid-area: header;
