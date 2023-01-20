@@ -38,7 +38,7 @@
         flex: 1;
     }
     span {
-        width: 9rem;
+        width: 15rem;
         padding-left: 1rem;
     }
 </style>

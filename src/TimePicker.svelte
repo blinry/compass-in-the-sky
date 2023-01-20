@@ -59,6 +59,7 @@
 
 <style>
     div {
-        font-size: 120%;
+        font-size: 200%;
+        margin: 1rem;
     }
 </style>

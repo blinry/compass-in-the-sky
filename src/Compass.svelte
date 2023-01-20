@@ -254,7 +254,7 @@
         bottom: 6rem;
         text-align: center;
         width: 25rem;
-        color: white;
-        text-shadow: 0 0 0.3rem black;
+        color: black;
+        text-shadow: 0 0 0.3rem white;
     }
 </style>

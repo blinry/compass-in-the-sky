@@ -620,8 +620,8 @@
             <Map bind:latitude bind:longitude />
         </div>
     {/if}
-    <div id="sliders">
-        {#if chapter == "time" || chapter == "date" || chapter == "cheatsheet" || chapter === "quiz1" || chapter === "quiz2" || chapter === "quiz3"}
+    <div id="big">
+        {#if chapter === "time" || chapter == "date" || chapter == "cheatsheet"}
             <TimePicker
                 bind:date
                 {latitude}
@@ -636,8 +636,25 @@
                 bind:hour
             />
         {/if}
-    </div>
-    <div id="big">
+
+        {#if chapter === "quiz1" || chapter === "quiz2" || chapter === "quiz3"}
+            <div id="metadata">
+                <TimePicker
+                    bind:date
+                    {latitude}
+                    {longitude}
+                    hideYear={chapter == "time" ||
+                        chapter == "quiz1" ||
+                        chapter == "cheatsheet"}
+                    disabled={chapter == "quiz0" ||
+                        chapter == "quiz1" ||
+                        chapter == "quiz2" ||
+                        chapter == "quiz3"}
+                    bind:hour
+                />
+            </div>
+        {/if}
+
         {#if chapter == "motivation"}
             <div
                 class="fullscreen"
@@ -705,7 +722,7 @@
         grid-template-columns: 20rem 1fr;
         grid-template-rows: 5.5rem 3rem 3fr 10rem;
         grid-template-areas:
-            "header sliders"
+            "header big"
             "nav big"
             "content big"
             "cheatsheet big";
@@ -749,16 +766,10 @@
         background-color: #eee;
         position: relative;
     }
-    #sliders {
-        grid-area: sliders;
-        background-color: #eee;
-        padding: 1rem;
-    }
     #compass {
-        /* position bottom center of parent */
         position: absolute;
-        bottom: 0;
-        left: 0;
+        bottom: -4rem;
+        left: 3rem;
     }
     #cheatsheet {
         grid-area: cheatsheet;
@@ -770,5 +781,13 @@
     #subtitle {
         font-size: 80%;
         color: #666;
+    }
+    #metadata {
+        position: absolute;
+        top: 3rem;
+        left: 3rem;
+        padding: 1rem;
+        color: black;
+        text-shadow: 0 0 0.5rem white;
     }
 </style>
