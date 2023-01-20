@@ -56,7 +56,7 @@ export async function newQuiz(lat, lng, date = undefined) {
         let jitter = 0
         lat += jitter * (Math.random() - 0.5)
         lng += jitter * (Math.random() - 0.5)
-        let size = 0.1
+        let size = 0.5
         let lat1 = Number(lat - size).toFixed(3)
         let lng1 = Number(lng - size).toFixed(3)
         let lat2 = Number(lat + size).toFixed(3)
@@ -73,7 +73,7 @@ export async function newQuiz(lat, lng, date = undefined) {
 
         if (json.data.length == 0) {
             alert(
-                "We couldn't find any Mapillary photos for your location. Please pick another area."
+                "We couldn't find any Mapillary photos for your location. Please pick another area. Sorry about that!"
             )
             cachedEntries = []
             return undefined
@@ -98,7 +98,7 @@ export async function newQuiz(lat, lng, date = undefined) {
             })
             if (cachedEntries.length == 0) {
                 alert(
-                    "We couldn't find any Mapillary photos for your location. Please pick another area."
+                    "We couldn't find any Mapillary photos for your location. Please pick another area. Sorry about that!"
                 )
                 cachedEntries = []
                 return undefined

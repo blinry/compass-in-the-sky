@@ -252,7 +252,9 @@
     async function myNewQuiz(simple = false) {
         showSolution = false
         feedback = ""
-        quiz = undefined
+        if (quiz?.image) {
+            quiz.image = ""
+        }
         if (simple) {
             quiz = await newQuiz(latitude, longitude, date)
         } else {
@@ -447,6 +449,18 @@
                     >where on Earth you are</b
                 >.
             </p>
+            <p>
+                For practice, we will use randomized photos from <em
+                    >Mapillary</em
+                >, a crowdsourced databased of geotagged photos. Two things to
+                note:
+            </p>
+            <ul>
+                <li>There might not be any photos for your location.</li>
+                <li>
+                    Occasionally, photos will have obviously wrong information.
+                </li>
+            </ul>
         {:else if chapter === "3d"}
             <p>
                 The earth rotates around itself every 24 hours. In addition, the
