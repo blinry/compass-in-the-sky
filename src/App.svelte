@@ -44,14 +44,12 @@
     }
 
     function testTask(task) {
-        console.log(task)
         // Once true, always true.
         if (task.done == true) {
             return true
         }
         if (task.test) {
             task.done = true
-            console.log(task)
             return true
         } else {
             return false
@@ -142,7 +140,6 @@
     midnightTask.text =
         "And where would the sun be at midnight? The numbers in the diagram tell you at which hours the sun is up!"
     $: {
-        console.log(hour)
         midnightTask.test = Math.abs((hour - 0) % 24) < 0.1
         tasks = tasks
     }
