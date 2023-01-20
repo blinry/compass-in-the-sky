@@ -386,7 +386,7 @@
 
 <main>
     <div id="header" on:click={() => (chapter = "motivation")}>
-        Compass in the Sky ☀️
+        <img src="logo.svg" />
         <div id="subtitle">A Game of Solar Orientation</div>
     </div>
     <div id="nav">
@@ -703,7 +703,7 @@
     main {
         display: grid;
         grid-template-columns: 20rem 1fr;
-        grid-template-rows: 5rem 3rem 3fr 10rem;
+        grid-template-rows: 5.5rem 3rem 3fr 10rem;
         grid-template-areas:
             "header sliders"
             "nav big"
@@ -718,6 +718,9 @@
         padding: 0.5rem;
         font-size: 150%;
         cursor: pointer;
+    }
+    #header img {
+        width: 100%;
     }
     #nav {
         grid-area: nav;
